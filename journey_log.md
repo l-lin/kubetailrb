@@ -1,0 +1,175 @@
+# Journey log
+
+> Here lies the chronicle of my journey learning Ruby, a collection of trials,
+> tribulations, and triumphs as I navigated the world of this dynamic
+> programming language.
+
+## 2024-10-27
+### Context
+
+I already learned some basic Ruby by reading the
+[official Ruby documentation](https://www.ruby-lang.org/en/) as well as doing
+the [Ruby Koans](https://www.rubykoans.com/).
+
+Now it's time to the practical exercise by creating a new project.
+Since I'm on the team to "embrace suffering to learn efficiently", I think
+coding and meeting lots of issue while I'm building this tool will heavily
+benefit my Ruby skill and its ecosystem.
+
+The subject of the exercise is to have something relevant to my day-to-day work,
+something I'm sure I'll often use.
+
+We are using Kubernetes at work (like most companies), and we are using
+structured logs following the [Elastic Common Schema (ECS) specification](https://www.elastic.co/guide/en/ecs/current/ecs-reference.html),
+so not quite easily readable by a human.
+
+Tools like [stern](https://github.com/stern/stern) or [kubetail](https://github.com/johanhaleby/kubetail)
+are useful to watch multiple Kubernetes pod logs directly from the terminal.
+However, they do not format the logs in JSON format easily. I could pipe the
+result and use other tools like [jq](https://github.com/jqlang/jq), but it's not
+fun, and I wanted to really learn Ruby, hence this project was created.
+
+Let's hope I will see it through and manage to implement the whole project 🤞.
+
+### Project goal
+
+The idea is to have a CLI, like [stern](https://github.com/stern/stern), to read
+and follow the Kubernetes pod logs directly from the terminal, so something like
+this:
+
+```bash
+kubetailrb --namespace my-namespace pod-name-regex
+```
+
+The name `kubetailrb` is copied from [kubetail](https://github.com/johanhaleby/kubetail)
+with a simple prefix `rb` to indicate that it's implemented in Ruby, so quite
+straightforward.
+
+I want to have it like a library, so a Gem, that can also be used by other Ruby
+project.
+I also have the ambition to learn [Ruby on Rails](https://rubyonrails.org/), so
+I also plan to implement a web version of `kubetailrb`.
+
+### Project initialization
+
+There are lots of way to create a new Ruby project.
+
+I first went for the tutorial at [RubyGems](https://guides.rubygems.org/make-your-own-gem/).
+It did work for a bit. However, the projects at my work are using [Bundler](https://bundler.io/),
+which seems to better scale Ruby projects, in the sense that it can track and
+manage dependencies with the idea of `Gemfile.lock`.
+
+So I followed the [tutorial from Bundler](https://bundler.io/guides/creating_gem.html#testing-our-gem)
+which is quite complete as it provides some boilerplate to quickly help me start
+up a new project, like:
+
+- the basic project structure,
+- a `Gemfile` as well as the `kubetailrb.gemspec`,
+- a `Rakefile` to execute some task, like running the tests.
+
+The project generation was performed with a single command line:
+
+```bash
+bundle gem kubetailrb --bin --no-coc --no-ext --mit --test=minitest --ci=github --linter=rubocop
+```
+
+Lots of things to learn. Let's take it one by one.
+
+### Project structure
+
+It seems the convention is:
+
+- `lib/` contains the source code.
+- `test/` (or `spec/` depending on the test framework) contains the test code.
+- `bin/` contains some scripts that can help the developer experience,
+  - Rails projects also have scripts in this `bin/` directory.
+- `exec/` contains the executables that will be installed to the user system if
+  the latter is installing the gem
+  - It seems to be a convention from Bundler, but that is configurable in the
+  `gemspec` file.
+
+I'm still not sure about the other directories, but I'll find out sooner or
+later.
+
+### Gemfile vs gemspec
+
+The `Gemfile` is used to manage gem dependencies for our library’s development.
+This file contains a `gemspec` line meaning that Bundler will include
+dependencies specified in `kubetailrb.gemspec` too. It’s best practice to
+specify all the gems that our library depends on in the `gemspec`.
+
+The `gemspec` is the Gem Specification file. This is where we provide
+information for Rubygems' consumption such as the name, description and homepage
+of our gem. This is also where we specify the dependencies our gem needs to run.
+
+> The benefit of putting this dependency specification inside of
+> `foodie.gemspec` rather than the `Gemfile` is that anybody who runs gem
+> install `foodie --dev` will get these development dependencies installed too.
+> This command is used for when people wish to test a gem without having to fork
+> it or clone it from GitHub.
+
+src: https://bundler.io/guides/creating_gem.html#testing-our-gem
+
+So, I'll put the dependencies to the `gemspec` by default. Looking at some
+project, like [cucumber-ruby](https://github.com/cucumber/cucumber-ruby/tree/main), they are also putting everything in their `gemspec`.
+
+### Rake
+
+[Rake](https://github.com/ruby/rake) is a popular task runner in Ruby.
+
+In a newly created project, it only runs the tests and the linter (Rubocop).
+
+A good tutorial on Rake: https://www.rubyguides.com/2019/02/ruby-rake/
+
+I wanted to add [cucumber](https://github.com/cucumber/cucumber-ruby/tree/main)
+in the `:default` task so that it execute all the tests (minitest + cucumber).
+
+To know how to add this step, I directly looked at the source code of
+[cucumber-ruby](https://github.com/cucumber/cucumber-ruby/blob/main/lib/cucumber/rake/task.rb) and add it to my [Rakefile](./Rakefile):
+
+```ruby
+# ... previous code
+
+require "cucumber/rake"
+Cucumber::Rake::Task.new
+
+task default: %i[test cucumber rubocop]
+```
+
+### `require` vs `require_relative`
+
+Difference between `require` and `require_relative`:
+- `require` is global.
+- `require_relative` is relative to this current directory of this file.
+- `require "./some_file"` is relative to your current working directory.
+
+src: https://stackoverflow.com/a/3672600/3612053
+
+### Create a Ruby CLI application
+
+We can parse CLI options using only stdlib.
+No need to use some fancy library, like Thor or cli-ui.
+The goal is to learn Ruby, not to learn to use 3rd party libraries.
+
+src: https://www.rubyguides.com/2018/12/ruby-argv/
+
+Some tools if I ever decide to change mind:
+
+- [rails/thor: Thor is a toolkit for building powerful command-line interfaces](https://github.com/rails/thor)
+- [TTY: The Ruby terminal apps toolkit](https://ttytoolkit.org/)
+- [Shopify/cli-ui: CLI tooling framework with simple interactive widgets](https://github.com/Shopify/cli-ui?tab=readme-ov-file)
+
+### Bundle exec everything?
+
+The documentation is always prefixing all the command with `bundle exec`, e.g.
+`bundle exec rake`. But I already have `rake` in my `$PATH`, so why do they
+suggest adding this `bundle exec` which seems to provide more typing.
+
+> In some cases, running executables without bundle exec may work, if the
+> executable happens to be installed in your system and does not pull in any
+> gems that conflict with your bundle.
+>
+> However, this is unreliable and is the source of considerable pain. Even if it
+> looks like it works, it may not work in the future or on another machine.
+
+src: https://stackoverflow.com/a/6588708/3612053
