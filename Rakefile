@@ -8,4 +8,7 @@ Minitest::TestTask.create
 require "rubocop/rake_task"
 RuboCop::RakeTask.new
 
-task default: %i[test rubocop]
+require "cucumber/rake/task"
+Cucumber::Rake::Task.new
+
+task default: %i[test cucumber rubocop]

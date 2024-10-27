@@ -47,10 +47,8 @@ Gem::Specification.new do |spec|
   # spec.add_dependency "example-gem", "~> 1.0"
 
   # NOTE: Add the following gems in the "development" group by using `add_development_dependency` method.
-  # The benefit of putting this dependency specification inside of foodie.gemspec rather than the Gemfile is that
-  # anybody who runs gem install foodie --dev will get these development dependencies installed too.
-  # This command is used for when people wish to test a gem without having to fork it or clone it from GitHub.
-  # src: https://bundler.io/guides/creating_gem.html#testing-our-gem
+  spec.add_development_dependency "aruba", "~> 2.2.0"             # Test command-line applications
+  spec.add_development_dependency "cucumber", "~> 9.2.0"          # Tool for running tests in plain language.
   spec.add_development_dependency "minitest", "~> 5.16"           # Complete suite of testing facilities.
   spec.add_development_dependency "rake", "~> 13.0"               # A Make-like build utility for Ruby.
   spec.add_development_dependency "rubocop", "~> 1.21"            # Static code analyzer and formatter.
