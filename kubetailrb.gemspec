@@ -49,6 +49,9 @@ Gem::Specification.new do |spec|
   # NOTE: Add the following gems in the "development" group by using `add_development_dependency` method.
   spec.add_development_dependency "aruba", "~> 2.2.0"             # Test command-line applications
   spec.add_development_dependency "cucumber", "~> 9.2.0"          # Tool for running tests in plain language.
+  spec.add_development_dependency "guard", "~> 2.19.0"            # Command-line tool to handle events on fs.
+  spec.add_development_dependency "guard-cucumber", "~> 3.0.0"    # Automatically runs your features.
+  spec.add_development_dependency "guard-minitest", "~> 2.4.6"    # Automatically run your tests with Minitest.
   spec.add_development_dependency "minitest", "~> 5.16"           # Complete suite of testing facilities.
   spec.add_development_dependency "rake", "~> 13.0"               # A Make-like build utility for Ruby.
   spec.add_development_dependency "rubocop", "~> 1.21"            # Static code analyzer and formatter.

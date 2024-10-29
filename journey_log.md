@@ -173,3 +173,50 @@ suggest adding this `bundle exec` which seems to provide more typing.
 > looks like it works, it may not work in the future or on another machine.
 
 src: https://stackoverflow.com/a/6588708/3612053
+
+## 2024-10-29
+### RUBYGEMS_GEMDEPS env variable
+
+Previously, to ensure we are using the right gems, we needed to prefix all our
+ruby/gem commands with `bundle exec`. But it seems there's a better way: set the
+`RUBYGEMS_GEMDEPS=-` environment variable. This will autodetect the `Gemfile` in
+the current or parent directories or set it to the path of your `Gemfile`.
+
+> `use_gemdeps(path = nil)`
+>
+> Looks for a gem dependency file at path and
+> activates the gems in the file if found. If the file is not found an
+> ArgumentError is raised.
+>
+> If path is not given the RUBYGEMS_GEMDEPS environment variable is used, but if
+> no file is found no exception is raised.
+>
+> If ‘-’ is given for path RubyGems searches up from the current working
+> directory for gem dependency files (gem.deps.rb, Gemfile, Isolate) and
+> activates the gems in the first one found.
+>
+> You can run this automatically when rubygems starts. To enable, set the
+> RUBYGEMS_GEMDEPS environment variable to either the path of your gem
+> dependencies file or “-” to auto-discover in parent directories.
+>
+> NOTE: Enabling automatic discovery on multiuser systems can lead to execution
+> of arbitrary code when used from directories outside your control.
+
+src: https://ruby-doc.org/3.3.5/stdlibs/rubygems/Gem.html
+
+### Guard to execute tests automatically
+
+I want to have fast feedback loop, and to get this developer experience, I need
+something that will run automatically the tests every time I update a file.
+
+I could have use [entr](https://github.com/clibs/entr) as usual, but since I'm
+learning Ruby, let's try to keep on Ruby's ecosystem.
+
+And it appears there's a tool for that: [Guard](https://github.com/guard/guard).
+
+It's quite powerful, especially because it's also offering several plugins to
+support multiple use cases, such as
+[guard-minitest](https://rubygems.org/gems/guard-minitest) to run Minitest and
+Test/Unit tests, and [guard-cucumber](https://github.com/guard/guard-cucumber)
+to re-run changed/affected Cucumber features.
+

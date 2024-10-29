@@ -34,8 +34,8 @@ kubetailrb -h
 # Install dependencies.
 ./bin/setup
 
-# Run tests.
-rake test
+# Run tests, cucumber features and lint.
+rake
 
 # Open interactive prompt to allow you to experiment.
 ./bin/console
@@ -47,6 +47,9 @@ bundle exec rake install
 NEW_VERSION=1.0.1 \
   && sed "s/VERSION = \".*\"/VERSION = \"${NEW_VERSION}\"/" lib/kubetailrb/version.rb
   && bundle exec rake release
+
+# During your development phase, run tests automatically.
+guard -c
 ```
 
 ## Contributing
