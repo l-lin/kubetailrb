@@ -6,7 +6,7 @@
 
 > [!NOTE]
 > This project is a pet project I used to learn the [Ruby programming language](https://www.ruby-lang.org/en/).
-> So you might find lots of my personal notes in the codebase.
+> So you might find lots of my [personal notes](./journey_log.md) in the codebase.
 >
 > If you want to have something that works, please look at the following
 > projects that were used as inspirations instead:
