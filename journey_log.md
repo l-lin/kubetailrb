@@ -220,3 +220,25 @@ support multiple use cases, such as
 Test/Unit tests, and [guard-cucumber](https://github.com/guard/guard-cucumber)
 to re-run changed/affected Cucumber features.
 
+## 2024-10-30
+### Debugging
+
+I thought the keyword `pry` was native to Ruby. It appears I need to add some
+gems to enable debugging:
+
+```ruby
+spec.add_development_dependency "pry"
+spec.add_development_dependency "pry-byebug"
+```
+
+The latter is needed to go step-by-step. I also have to add a `.pryrc` at the
+root of the project in order to have some nice shortcuts, like `n` for `next`.
+
+To add a breaking point, I had to add:
+
+```ruby
+require "pry"
+require "pry-byebug"
+
+binding.pry
+```
