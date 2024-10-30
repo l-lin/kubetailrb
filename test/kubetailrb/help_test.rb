@@ -10,7 +10,14 @@ module Kubetailrb
 
         it "should display help" do
           expected = <<~EXP
-            TODO: display help
+            Tail your Kubernetes pod logs at the same time.
+
+            Usage:
+              kubetailrb pod-query [flags]
+
+            Flags:
+              -v, --version  Display version.
+              -h, --help     Display help.
           EXP
 
           assert_output(expected) { @cmd.execute }

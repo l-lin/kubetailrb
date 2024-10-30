@@ -29,8 +29,11 @@ module Kubetailrb
 
     def parse_opts!
       OptionParser.new do |opts|
-        opts.on("-v", "--version", "Dispay version") do
+        opts.on("-v", "--version", "Display version") do
           @cmd = :version
+        end
+        opts.on("-h", "--help", "Display help") do
+          @cmd = :help
         end
       end.parse!
     end

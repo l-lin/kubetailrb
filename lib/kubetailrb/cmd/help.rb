@@ -5,8 +5,16 @@ module Kubetailrb
     # Display help.
     class Help
       def execute
-        # TODO: Implement full help command.
-        puts "TODO: display help"
+        puts <<~HELP
+          Tail your Kubernetes pod logs at the same time.
+
+          Usage:
+            kubetailrb pod-query [flags]
+
+          Flags:
+            -v, --version  Display version.
+            -h, --help     Display help.
+        HELP
       end
     end
   end
