@@ -5,6 +5,9 @@ require:
 AllCops:
   TargetRubyVersion: 3.0
 
+Metrics/BlockLength:
+  Enabled: false
+
 Style/StringLiterals:
   EnforcedStyle: double_quotes
 

@@ -1,53 +1,23 @@
 # frozen_string_literal: true
 
-require "optparse"
+require_relative "opts_parser"
 require_relative "cmd/help"
 require_relative "cmd/version"
 
 module Kubetailrb
   # CLI application to run kubetailrb.
   class CLI
-    def self.execute
-      new.execute!
-    end
-
-    def initialize
-      @cmd = :help
-    end
-
-    def execute!
-      parse_opts!
-
-      cmd = create_cmd
-      # TODO: Check if `execute` method exists, to leverage duck typing.
-      cmd.execute
+    def execute(*args)
+      cmd = OptsParser.parse(*args)
+      # NOTE: Is it better to use this approach by checking the method existence
+      # or is it better to use a raise/rescue approach? Or another approach?
+      if cmd.respond_to?(:execute)
+        cmd.execute
+      else
+        puts "invalid cmd"
+      end
 
       # TODO: Implement graceful shutdown in case of error.
-    end
-
-    private
-
-    def parse_opts!
-      OptionParser.new do |opts|
-        opts.on("-v", "--version", "Display version") do
-          @cmd = :version
-        end
-        opts.on("-h", "--help", "Display help") do
-          @cmd = :help
-        end
-      end.parse!
-    end
-
-    def create_cmd
-      # NOTE: We can use switch case with symbols and for strings!
-      case @cmd
-      when :help
-        Kubetailrb::Cmd::Help.new
-      when :version
-        Kubetailrb::Cmd::Version.new
-      else
-        raise NotImplementedError
-      end
     end
   end
 end

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "test_helper"
+
 module Kubetailrb
   module Cmd
     class HelpTest < Minitest::Test

@@ -3,4 +3,4 @@
 
 require "kubetailrb"
 
-Kubetailrb::CLI.execute
+Kubetailrb::CLI.new.execute(*ARGV)

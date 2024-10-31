@@ -4,6 +4,24 @@
 > tribulations, and triumphs as I navigated the world of this dynamic
 > programming language.
 
+
+## 🤔 Things that I'm curious about
+### Double colons
+
+```ruby
+# Sometime, we are prefixing the class with ::
+some_var = ::SomePackage::SomeClass
+
+# Some other time, we do not
+some_var = SomePackage::SomeClass
+```
+
+I believe the first one is to avoid collision. So then, why not always writing
+the first one? Why bother writing the second form, if there's a risk of
+collision?
+
+---
+
 ## 2024-10-27
 ### Context
 
@@ -242,3 +260,35 @@ require "pry-byebug"
 
 binding.pry
 ```
+
+## 2024-10-31
+### Require in tests
+
+I tried to test my [`OptsParser`](./lib/kubetailrb/opts_parser.rb) with
+[`OptsParserTest`](./test/kubetailrb/opts_parser_test.rb), but I got an error
+while creating a new instance:
+
+```
+  1) Error:
+no argument provided#test_0001_should return help command:
+NameError: uninitialized constant Kubetailrb::OptsParser
+    test/kubetailrb/opts_parser_test.rb:7:in `block (2 levels) in <class:OptsParserTest>'
+```
+
+So I had to add the following to my test file:
+
+```ruby
+require "kubetailrb/opts_parser"
+```
+
+But do I not need to add this line for [`VersionTest`](./test/kubetailrb/cmd/version_test.rb) and [`HelpTest`](./test/kubetailrb/cmd/help_test.rb)?
+
+It was because I had the following in my
+[`CLI`](./lib/kubetailrb/cli.rb):
+
+```ruby
+require "cmd/help"
+require "cmd/version"
+```
+
+which include my classes.
