@@ -11,7 +11,7 @@
 guard :minitest do
   watch(%r{^test/(.*)/?(.*)_test\.rb$})
   watch(%r{^lib/(.*/)?([^/]+)\.rb$})     { |m| "test/#{m[1]}#{m[2]}_test.rb" }
-  watch(%r{^test/test_helper\.rb$})      { "test" }
+  watch(%r{^test/test_helper\.rb$})      { 'test' }
 end
 
 #
@@ -21,14 +21,14 @@ cucumber_options = {
   # Need to disable this in order to make it work with recent version of cucumber.
   # src: https://github.com/guard/guard-cucumber/issues/41#issuecomment-716199847
   notification: false,
-  cmd_additional_args: "--publish-quiet"
+  cmd_additional_args: '--publish-quiet'
 }
 
-guard "cucumber", cucumber_options do
+guard 'cucumber', cucumber_options do
   watch(%r{^features/.+\.feature$})
-  watch(%r{^features/support/.+$}) { "features" }
+  watch(%r{^features/support/.+$}) { 'features' }
 
   watch(%r{^features/step_definitions/(.+)_steps\.rb$}) do |m|
-    Dir[File.join("**/#{m[1]}.feature")][0] || "features"
+    Dir[File.join("**/#{m[1]}.feature")][0] || 'features'
   end
 end

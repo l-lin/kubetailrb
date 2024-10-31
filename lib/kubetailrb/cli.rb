@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
-require_relative "opts_parser"
-require_relative "cmd/help"
-require_relative "cmd/version"
+require_relative 'opts_parser'
+require_relative 'cmd/file'
+require_relative 'cmd/help'
+require_relative 'cmd/version'
 
 module Kubetailrb
   # CLI application to run kubetailrb.
@@ -14,7 +15,7 @@ module Kubetailrb
       if cmd.respond_to?(:execute)
         cmd.execute
       else
-        puts "invalid cmd"
+        puts 'invalid cmd'
       end
 
       # TODO: Implement graceful shutdown in case of error.

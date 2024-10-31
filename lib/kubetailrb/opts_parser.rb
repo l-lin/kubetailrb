@@ -11,9 +11,9 @@ module Kubetailrb
     end
 
     def parse
-      return Cmd::Help.new if missing_args? || contains_flags?(["-h", "--help"])
+      return Cmd::Help.new if missing_args? || contains_flags?(['-h', '--help'])
 
-      return Cmd::Version.new if contains_flags?(["-v", "--version"])
+      return Cmd::Version.new if contains_flags?(['-v', '--version'])
 
       Cmd::Help.new
     end

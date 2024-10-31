@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
-require "test_helper"
+require 'test_helper'
 
 module Kubetailrb
   module Cmd
     class HelpTest < Minitest::Test
-      describe "help command" do
+      describe 'help command' do
         before do
           @cmd = Help.new
         end
 
-        it "should display help" do
+        it 'should display help' do
           expected = <<~EXP
             Tail your Kubernetes pod logs at the same time.
 

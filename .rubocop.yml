@@ -9,7 +9,8 @@ Metrics/BlockLength:
   Enabled: false
 
 Style/StringLiterals:
-  EnforcedStyle: double_quotes
+  Enabled: true
+  EnforcedStyle: single_quotes
 
 Style/StringLiteralsInInterpolation:
   EnforcedStyle: double_quotes
