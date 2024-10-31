@@ -6,7 +6,7 @@ module Kubetailrb
   class OptsParserTest < Minitest::Test
     describe ".parse" do
       it "should return help command if no argument is given" do
-        actual = OptsParser.parse
+        actual = OptsParser.new.parse
 
         assert_instance_of Cmd::Help, actual
       end
@@ -15,7 +15,7 @@ module Kubetailrb
         args_arr = given_arguments_with_help_flag
 
         args_arr.each do |args|
-          actual = OptsParser.parse(*args)
+          actual = OptsParser.new(*args).parse
 
           assert_instance_of Cmd::Help, actual, "Expected Help command with arguments #{args}"
         end
@@ -25,7 +25,7 @@ module Kubetailrb
         args_arr = given_arguments_with_version_flag
 
         args_arr.each do |args|
-          actual = OptsParser.parse(*args)
+          actual = OptsParser.new(*args).parse
 
           assert_instance_of Cmd::Version, actual, "Expected Version command with arguments #{args}"
         end
@@ -35,8 +35,10 @@ module Kubetailrb
 
       def given_arguments_with_help_flag
         [
+          nil,
+          [],
           ["-h"],
-          ["-help"],
+          ["--help"],
           ["--some-flag", "-h"],
           ["-h", "--some-flag"]
         ]

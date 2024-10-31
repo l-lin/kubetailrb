@@ -6,12 +6,26 @@ module Kubetailrb
   # comprehensive tool like Thor to achieve this, but that would defeat the
   # purpose of learning by implementing it ourselves.
   class OptsParser
-    def self.parse(*args)
-      return Cmd::Help.new if args.nil?
+    def initialize(*args)
+      @args = *args
+    end
 
-      return Cmd::Version.new if args.any? { |arg| ["-v", "--version"].include?(arg) }
+    def parse
+      return Cmd::Help.new if missing_args? || contains_flags?(["-h", "--help"])
+
+      return Cmd::Version.new if contains_flags?(["-v", "--version"])
 
       Cmd::Help.new
+    end
+
+    private
+
+    def missing_args?
+      @args.nil? || @args.empty?
+    end
+
+    def contains_flags?(flags)
+      @args.any? { |arg| flags.include?(arg) }
     end
   end
 end

@@ -8,7 +8,7 @@ module Kubetailrb
   # CLI application to run kubetailrb.
   class CLI
     def execute(*args)
-      cmd = OptsParser.parse(*args)
+      cmd = OptsParser.new(*args).parse
       # NOTE: Is it better to use this approach by checking the method existence
       # or is it better to use a raise/rescue approach? Or another approach?
       if cmd.respond_to?(:execute)
