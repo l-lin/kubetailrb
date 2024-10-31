@@ -31,10 +31,13 @@ module Kubetailrb
         end
       end
 
-      # it '' do
-      #
-      # end
-      #
+      it 'should return file command if given an option' do
+        actual = OptsParser.new('test/test_helper.rb').parse
+
+        assert_instance_of Cmd::File, actual
+        assert_equal 'test/test_helper.rb', actual.filepath
+      end
+
       private
 
       def given_arguments_with_help_flag

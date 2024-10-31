@@ -15,7 +15,7 @@ module Kubetailrb
 
       return Cmd::Version.new if contains_flags?(['-v', '--version'])
 
-      Cmd::Help.new
+      Cmd::File.new(extract_options)
     end
 
     private
@@ -26,6 +26,10 @@ module Kubetailrb
 
     def contains_flags?(flags)
       @args.any? { |arg| flags.include?(arg) }
+    end
+
+    def extract_options
+      @args.find { |arg| !arg.start_with? '-' }
     end
   end
 end
