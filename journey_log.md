@@ -20,6 +20,21 @@ I believe the first one is to avoid collision. So then, why not always writing
 the first one? Why bother writing the second form, if there's a risk of
 collision?
 
+### On duck typing
+
+Duck typing is really powerful and can make one program flexible and decouple
+code.
+
+However, how does one can keep easily keep track of which classes are
+implementing a particular behavior? If we want to rename a method, how can we
+ensure all the implementations are also updated?
+
+With static typed programming language, we have the compiler to help us track
+and update the method name.
+For small projects, it is manageable and can be updated with careful `grep`, but
+for really large projects (hundred thousands to millions of LoC), how can one
+keep ~~their sanity~~track of the class methods?
+
 ---
 
 ## 2024-10-27
@@ -292,3 +307,56 @@ require "cmd/version"
 ```
 
 which include my classes.
+
+### Method verb conjugation
+
+I wanted to check if a `String` started with some prefix `-`, so I figured there
+was a method to do it, like most programming language:
+
+```ruby
+'some string'.starts_with?("some")
+```
+
+But then, I got an error:
+
+```
+NoMethodError: undefined method `starts_with?' for an instance of String
+```
+
+It appears it was a typo and maybe it's a convention to have the verb be in
+infinitive form, so in this case `start_with`, but not for all methods, e.g. `is_a?`.
+
+### Executing shell commands directly from Ruby code
+
+It's quite easy to execute some shell commands directly from Ruby code! I was
+quite impressed by the simplicity:
+
+```ruby
+# using Kernel#`
+with_backtick = `ls`
+# or with %x
+another_way = %x|ls|
+```
+
+src: https://www.rubyguides.com/2018/12/ruby-system/
+
+### On default argument
+
+There's a particular behavior that I did not expect for default argument.
+
+Let's say, we have the following method:
+
+```ruby
+def foobar(var = 1)
+  puts var
+end
+
+foobar # will print: 1
+
+foobar(nil) # will print nothing
+```
+
+So `nil` will not make the method use the default argument. It's by design, so
+be careful when using those default argument.
+
+src: https://stackoverflow.com/a/10506137/3612053
