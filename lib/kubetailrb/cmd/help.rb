@@ -4,6 +4,8 @@ module Kubetailrb
   module Cmd
     # Display help.
     class Help
+      FLAGS = %w[-h --help].freeze
+
       def execute
         puts <<~HELP
           Tail your Kubernetes pod logs at the same time.
@@ -17,6 +19,22 @@ module Kubetailrb
                 --tail     The number of lines from the end of the logs to show. Defaults to 10.
             -f, --follow   Output appended data as the file grows.
         HELP
+      end
+
+      class << self
+        def applicable?(*args)
+          missing_args?(*args) || contains_flags?(*args)
+        end
+
+        private
+
+        def missing_args?(*args)
+          args.nil? || args.empty?
+        end
+
+        def contains_flags?(*args)
+          args.any? { |arg| FLAGS.include?(arg) }
+        end
       end
     end
   end

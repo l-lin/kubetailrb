@@ -25,6 +25,44 @@ module Kubetailrb
           refute actual.reader.follow?
         end
       end
+
+      describe '.create' do
+        it 'should return file command with default last nb lines if given a filepath and no `--tail` flag' do
+          args = %w[test/test_helper.rb]
+
+          actual = File.create(*args)
+
+          assert_instance_of File, actual
+          assert_equal 'test/test_helper.rb', actual.reader.filepath
+          assert_equal 10, actual.reader.last_nb_lines
+        end
+
+        it 'should return file command with custom last nb lines if given a filepath and a `--tail` flag' do
+          args = %w[test/test_helper.rb --tail 3]
+
+          actual = File.create(*args)
+
+          assert_instance_of File, actual
+          assert_equal 'test/test_helper.rb', actual.reader.filepath
+          assert_equal 3, actual.reader.last_nb_lines
+        end
+
+        it 'should raise InvalidNbLinesValueError if given a filepath and an invalid `--tail` flag value' do
+          args = %w[test/test_helper.rb --tail invalid]
+
+          actual = assert_raises(InvalidNbLinesValueError) { File.create(*args) }
+
+          assert_equal 'Invalid --tail value: invalid.', actual.message
+        end
+
+        it 'should raise MissingNbLinesValueError if given a filepath and a `--tail` flag with no value' do
+          args = %w[test/test_helper.rb --tail]
+
+          actual = assert_raises(MissingNbLinesValueError) { File.create(*args) }
+
+          assert_equal 'Missing --tail value.', actual.message
+        end
+      end
     end
   end
 end
