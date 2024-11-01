@@ -14,7 +14,8 @@ module Kubetailrb
     end
 
     def read
-      naive_read
+      # naive_read
+      read_with_fd
     end
 
     # NOTE: Is there something like `attr_reader` but for boolean?
@@ -36,6 +37,7 @@ module Kubetailrb
 
     #
     # Naive implementation to read the last N lines of a file.
+    # Does not support `--follow`.
     # Took ~1.41s to read a 3.1G file (5M lines).
     #
     def naive_read
@@ -49,6 +51,43 @@ module Kubetailrb
         puts line if i >= start
         i += 1
       end
+    end
+
+    #
+    # Use `seek` to start from the EOF.
+    # Use `read` to read the content of the file from the given position.
+    # src: https://renehernandez.io/tutorials/implementing-tail-command-in-ruby/
+    # Took ~0.13s to read a 3.1G file (5M lines).
+    #
+    def read_with_fd
+      fd = File.open(@filepath)
+      return if File.empty?(fd)
+
+      pos = 0
+      current_line_nb = 0
+
+      loop do
+        pos -= 1
+        # Seek file position from the end.
+        fd.seek(pos, IO::SEEK_END)
+
+        # If we have reached the begining of the file, read all the file.
+        # We need to do this check before reading the next byte, otherwise, the
+        # cursor will be moved to 1.
+        break if fd.tell.zero?
+
+        # Read only one character (or is it byte?).
+        char = fd.read(1)
+        current_line_nb += 1 if char == "\n"
+
+        break if current_line_nb > @last_nb_lines
+      end
+
+      puts fd.read
+    ensure
+      # NOTE: Is this the only way to always close the file regardless of the
+      # result of event happening to the main thread?
+      fd&.close
     end
   end
 

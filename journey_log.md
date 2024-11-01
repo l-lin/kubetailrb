@@ -58,6 +58,24 @@ class Foobar
 end
 ```
 
+### On ensure
+
+While I was implementing the `FileReader`, I must close the file regardless of
+the result (otherwise, bad things may happen).
+
+So, I used the `rescue` keyword:
+
+```ruby
+def foobar
+  file = File.open('/path/to/file')
+  # so some stuff with file
+ensure
+  file&.close
+end
+```
+
+Is it the right way to do it? Is there a better way?
+
 ---
 
 ## 2024-10-27

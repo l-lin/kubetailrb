@@ -75,6 +75,18 @@ module Kubetailrb
         EXPECTED
         assert_output(expected) { file_reader.read }
       end
+
+      it 'should read empty if the file content is empty' do
+        file_reader = FileReader.new(filepath: 'test/empty_file.txt', last_nb_lines: 3, follow: false)
+
+        assert_output('') { file_reader.read }
+      end
+
+      it 'should read all the file content if nb_last_lines is greater than file line numbers' do
+        file_reader = FileReader.new(filepath: 'test/one_line.txt', last_nb_lines: 3, follow: false)
+
+        assert_output("just one line\n") { file_reader.read }
+      end
     end
   end
 end

@@ -8,6 +8,10 @@ AllCops:
 Metrics/BlockLength:
   Enabled: false
 
+Metrics/MethodLength:
+  Enabled: true
+  Max: 40
+
 Style/StringLiterals:
   Enabled: true
   EnforcedStyle: single_quotes
