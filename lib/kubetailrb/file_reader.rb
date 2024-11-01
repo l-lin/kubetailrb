@@ -60,8 +60,27 @@ module Kubetailrb
     # Took ~0.13s to read a 3.1G file (5M lines).
     #
     def read_with_fd
-      fd = File.open(@filepath)
-      return if File.empty?(fd)
+      file = File.open(@filepath)
+      update_stats file
+      read_last_nb_lines file
+
+      if @follow
+        loop do
+          # TODO: Capture Ctrl+c
+          if file_changed?(file)
+            update_stats(file)
+            print file.read
+          end
+        end
+      end
+    ensure
+      # NOTE: Is this the only way to always close the file regardless of the
+      # result of event happening to the main thread?
+      file&.close
+    end
+
+    def read_last_nb_lines(file)
+      return if File.empty?(file)
 
       pos = 0
       current_line_nb = 0
@@ -69,25 +88,31 @@ module Kubetailrb
       loop do
         pos -= 1
         # Seek file position from the end.
-        fd.seek(pos, IO::SEEK_END)
+        file.seek(pos, IO::SEEK_END)
 
         # If we have reached the begining of the file, read all the file.
         # We need to do this check before reading the next byte, otherwise, the
         # cursor will be moved to 1.
-        break if fd.tell.zero?
+        break if file.tell.zero?
 
         # Read only one character (or is it byte?).
-        char = fd.read(1)
+        char = file.read(1)
         current_line_nb += 1 if char == "\n"
 
         break if current_line_nb > @last_nb_lines
       end
 
-      puts fd.read
-    ensure
-      # NOTE: Is this the only way to always close the file regardless of the
-      # result of event happening to the main thread?
-      fd&.close
+      update_stats file
+      puts file.read
+    end
+
+    def update_stats(file)
+      @mtime = file.stat.mtime
+      @size = file.size
+    end
+
+    def file_changed?(file)
+      @mtime != file.stat.mtime || @size != file.size
     end
   end
 

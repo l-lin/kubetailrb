@@ -20,14 +20,10 @@ module Kubetailrb
 
       class << self
         def create(*args)
-          new(filepath: parse_filepath(*args), last_nb_lines: parse_nb_lines(*args))
+          new(filepath: parse_filepath(*args), last_nb_lines: parse_nb_lines(*args), follow: parse_follow(*args))
         end
 
         private
-
-        def contains_flags?(*args)
-          args.any? { |arg| flags.include?(arg) }
-        end
 
         #
         # The filepath is provided directly as an argument, so not as a flag. The
@@ -70,10 +66,12 @@ module Kubetailrb
           last_nb_lines
         end
 
-        def parse_follow
+        def parse_follow(*args)
           flags = %w[-f --follow]
 
-          DEFAULT_FOLLOW unless contains_flags?(flags)
+          return DEFAULT_FOLLOW unless args.any? { |arg| flags.include?(arg) }
+
+          true
         end
       end
     end

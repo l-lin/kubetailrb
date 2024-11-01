@@ -24,6 +24,15 @@ module Kubetailrb
           assert_equal 10, actual.reader.last_nb_lines
           refute actual.reader.follow?
         end
+
+        it 'should create FileReader with custom value if last_nb_lines and follow are provided' do
+          filepath = 'README.md'
+
+          actual = File.new(filepath: filepath, last_nb_lines: 3, follow: true)
+
+          assert_equal 3, actual.reader.last_nb_lines
+          assert actual.reader.follow?
+        end
       end
 
       describe '.create' do
@@ -35,16 +44,18 @@ module Kubetailrb
           assert_instance_of File, actual
           assert_equal 'test/test_helper.rb', actual.reader.filepath
           assert_equal 10, actual.reader.last_nb_lines
+          refute actual.reader.follow?
         end
 
-        it 'should return file command with custom last nb lines if given a filepath and a `--tail` flag' do
-          args = %w[test/test_helper.rb --tail 3]
+        it 'should return file command with custom last nb lines if given a filepath and a `--tail` and a `--follow` flags' do
+          args = %w[test/test_helper.rb --tail 3 --follow]
 
           actual = File.create(*args)
 
           assert_instance_of File, actual
           assert_equal 'test/test_helper.rb', actual.reader.filepath
           assert_equal 3, actual.reader.last_nb_lines
+          assert actual.reader.follow?
         end
 
         it 'should raise InvalidNbLinesValueError if given a filepath and an invalid `--tail` flag value' do
