@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative 'boolean'
 require_relative 'kubetailrb/cli'
 require_relative 'kubetailrb/version'
 

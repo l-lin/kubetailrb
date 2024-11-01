@@ -35,6 +35,29 @@ For small projects, it is manageable and can be updated with careful `grep`, but
 for really large projects (hundred thousands to millions of LoC), how can one
 keep ~~their sanity~~track of the class methods?
 
+### Getter on boolean
+
+We can easily add getters with the keyword `attr_reader`. However, by
+convention, methods that return a boolean should have the suffix `?`.
+
+But `attr_reader` does not seem to add this suffix `?` to the boolean variable
+(which is logical, since Ruby is a dynamic programming language, so it cannot
+know in advance if the variable is boolean or not).
+
+Do we have to manually implement this getter?
+
+```ruby
+class Foobar
+  def initialize
+    @foo = true
+  end
+
+  def foo?
+    @foo
+  end
+end
+```
+
 ---
 
 ## 2024-10-27

@@ -5,15 +5,21 @@ module Kubetailrb
   class FileReader
     attr_reader :filepath, :last_nb_lines
 
-    def initialize(filepath:, last_nb_lines:)
+    def initialize(filepath:, last_nb_lines:, follow:)
       @filepath = filepath
-      @last_nb_lines = last_nb_lines.nil? ? 10 : last_nb_lines
+      @last_nb_lines = last_nb_lines
+      @follow = follow
 
       validate
     end
 
     def read
       naive_read
+    end
+
+    # NOTE: Is there something like `attr_reader` but for boolean?
+    def follow?
+      @follow
     end
 
     private
@@ -23,7 +29,9 @@ module Kubetailrb
 
       last_nb_lines_valid = @last_nb_lines.is_a?(Integer) && @last_nb_lines.positive?
 
-      raise InvalidArgumentError, "Invalid last_nb_lines: #{last_nb_lines}." unless last_nb_lines_valid
+      raise InvalidArgumentError, "Invalid last_nb_lines: #{@last_nb_lines}." unless last_nb_lines_valid
+
+      raise InvalidArgumentError, "Invalid follow: #{@follow}." unless @follow.is_a?(Boolean)
     end
 
     #

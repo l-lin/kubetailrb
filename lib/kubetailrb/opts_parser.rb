@@ -21,6 +21,7 @@ module Kubetailrb
     private
 
     DEFAULT_NB_LINES = 10
+    DEFAULT_FOLLOW = false
 
     def missing_args?
       @args.nil? || @args.empty?
@@ -69,6 +70,12 @@ module Kubetailrb
       raise InvalidNbLinesValueError, "Invalid --tail value: #{@args[index + 1]}." if last_nb_lines.zero?
 
       last_nb_lines
+    end
+
+    def parse_follow
+      flags = %w[-f --follow]
+
+      DEFAULT_FOLLOW unless contains_flags?(flags)
     end
   end
 
