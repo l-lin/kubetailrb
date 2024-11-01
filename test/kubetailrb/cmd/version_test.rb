@@ -5,7 +5,7 @@ require 'test_helper'
 module Kubetailrb
   module Cmd
     class VersionTest < Minitest::Test
-      describe 'Version command' do
+      describe 'version command' do
         before do
           @cmd = Version.new
         end

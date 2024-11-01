@@ -1,27 +1,20 @@
 # frozen_string_literal: true
 
+require 'kubetailrb/file_reader'
+
 module Kubetailrb
   module Cmd
     # Command to read a file.
     class File
-      attr_reader :filepath
+      attr_reader :reader
 
-      def initialize(filepath)
-        raise NoSuchFileError, "#{filepath} not found" unless ::File.exist?(filepath)
-
-        @filepath = filepath
+      def initialize(filepath:, last_nb_lines:)
+        @reader = Kubetailrb::FileReader.new(filepath: filepath, last_nb_lines: last_nb_lines)
       end
 
       def execute
-        # NOTE: Use `::` to ensure we are using the one from stdlib!!!
-        ::File.open(@filepath) do |file|
-          file.each { |line| puts line }
-        end
+        @reader.read
       end
-    end
-
-    # NOTE: We can create custom exceptions by extending RuntimeError.
-    class NoSuchFileError < RuntimeError
     end
   end
 end

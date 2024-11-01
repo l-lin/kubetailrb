@@ -20,6 +20,7 @@ module Kubetailrb
             Flags:
               -v, --version  Display version.
               -h, --help     Display help.
+                  --tail     The number of lines from the end of the logs to show. Defaults to 10.
           EXP
 
           assert_output(expected) { @cmd.execute }
