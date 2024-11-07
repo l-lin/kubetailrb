@@ -6,75 +6,7 @@
 
 
 ## 🤔 Things that I'm curious about
-### Double colons
 
-```ruby
-# Sometime, we are prefixing the class with ::
-some_var = ::SomePackage::SomeClass
-
-# Some other time, we do not
-some_var = SomePackage::SomeClass
-```
-
-I believe the first one is to avoid collision. So then, why not always writing
-the first one? Why bother writing the second form, if there's a risk of
-collision?
-
-### On duck typing
-
-Duck typing is really powerful and can make one program flexible and decouple
-code.
-
-However, how does one can keep easily keep track of which classes are
-implementing a particular behavior? If we want to rename a method, how can we
-ensure all the implementations are also updated?
-
-With static typed programming language, we have the compiler to help us track
-and update the method name.
-For small projects, it is manageable and can be updated with careful `grep`, but
-for really large projects (hundred thousands to millions of LoC), how can one
-keep ~~their sanity~~track of the class methods?
-
-### Getter on boolean
-
-We can easily add getters with the keyword `attr_reader`. However, by
-convention, methods that return a boolean should have the suffix `?`.
-
-But `attr_reader` does not seem to add this suffix `?` to the boolean variable
-(which is logical, since Ruby is a dynamic programming language, so it cannot
-know in advance if the variable is boolean or not).
-
-Do we have to manually implement this getter?
-
-```ruby
-class Foobar
-  def initialize
-    @foo = true
-  end
-
-  def foo?
-    @foo
-  end
-end
-```
-
-### On ensure
-
-While I was implementing the `FileReader`, I must close the file regardless of
-the result (otherwise, bad things may happen).
-
-So, I used the `rescue` keyword:
-
-```ruby
-def foobar
-  file = File.open('/path/to/file')
-  # so some stuff with file
-ensure
-  file&.close
-end
-```
-
-Is it the right way to do it? Is there a better way?
 
 ---
 
@@ -401,3 +333,132 @@ So `nil` will not make the method use the default argument. It's by design, so
 be careful when using those default argument.
 
 src: https://stackoverflow.com/a/10506137/3612053
+
+### Double colons
+
+```ruby
+# Sometime, we are prefixing the class with ::
+some_var = ::SomePackage::SomeClass
+
+# Some other time, we do not
+some_var = SomePackage::SomeClass
+```
+
+I believe the first one is to avoid collision. So then, why not always writing
+the first one? Why bother writing the second form, if there's a risk of
+collision?
+
+It's more verbose to add the `::` prefix, because we have to put the absolute
+path to the class.
+
+It's all about scopes and readability.
+
+In case of ambiguity, go for `::` prefix.
+
+Check https://cirw.in/blog/constant-lookup.html for more in-depth information.
+
+### On duck typing
+
+Duck typing is really powerful and can make one program flexible and decouple
+code.
+
+However, how does one can keep easily keep track of which classes are
+implementing a particular behavior? If we want to rename a method, how can we
+ensure all the implementations are also updated?
+
+With static typed programming language, we have the compiler to help us track
+and update the method name.
+For small projects, it is manageable and can be updated with careful `grep`, but
+for really large projects (hundred thousands to millions of LoC), how can one
+keep ~~their sanity~~track of the class methods?
+
+Some strategies to track the implementations:
+
+- Use [`caller_location`](https://devdocs.io/ruby~3/kernel#method-i-caller_locations)
+  to log which classes are calling the monitored method, and monitor for a few
+  days/weeks/months, then refactor.
+  - Really slow refactor...
+- Rely on failed tests to check the impact radius of the update.
+
+An approach is to create an interface-like class:
+
+```ruby
+class Foobar
+  def a_method
+    raise NotImplementedError
+  end
+
+  def another_method
+    raise NotImplementedError
+  end
+end
+
+class SomeFoobarImplementation
+  def a_method
+    puts 'Implementation of Foobar#a_method'
+  end
+
+  def another_method
+    puts 'Implementation of Foobar#another_method'
+  end
+end
+```
+
+Another approach with tests instead of interfaces:
+https://morningcoffee.io/interfaces-in-ruby.html
+
+### Getter on boolean
+
+We can easily add getters with the keyword `attr_reader`. However, by
+convention, methods that return a boolean should have the suffix `?`.
+
+But `attr_reader` does not seem to add this suffix `?` to the boolean variable
+(which is logical, since Ruby is a dynamic programming language, so it cannot
+know in advance if the variable is boolean or not).
+
+Do we have to manually implement this getter?
+
+```ruby
+class Foobar
+  def initialize
+    @foo = true
+  end
+
+  def foo?
+    @foo
+  end
+end
+```
+
+There is no default accessors for `boolean` because Ruby does not know if the
+variable is a `boolean` or not.
+
+### On ensure
+
+While I was implementing the `FileReader`, I must close the file regardless of
+the result (otherwise, bad things may happen).
+
+So, I used the `rescue` keyword:
+
+```ruby
+def foobar
+  file = File.open('/path/to/file')
+  # so some stuff with file
+ensure
+  file&.close
+end
+```
+
+Is it the right way to do it? Is there a better way?
+
+In general, if the class provides a block in their methods, it will take care of
+cleaning up. Example:
+
+```ruby
+File.open(@filepath, 'r').each_line do |line|
+  # Do something with file.
+end
+# File is now closed here.
+```
+
+Otherwise, using `ensure` is also an idiomatic way of closing resources.
