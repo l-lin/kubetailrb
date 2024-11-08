@@ -19,6 +19,8 @@ module Kubetailrb
     end
 
     # NOTE: Is there something like `attr_reader` but for boolean?
+    # Nope, Ruby does not know if a variable is a boolean or not. So it cannot
+    # create a dedicated method for those booleans.
     def follow?
       @follow
     end
@@ -65,17 +67,20 @@ module Kubetailrb
       read_last_nb_lines file
 
       if @follow
-        loop do
-          # TODO: Capture Ctrl+c
-          if file_changed?(file)
-            update_stats(file)
-            print file.read
+        begin
+          loop do
+            if file_changed?(file)
+              update_stats(file)
+              print file.read
+            end
           end
+        # Capture Ctrl+c so the program will not display an error in the
+        # terminal.
+        rescue SignalException
+          puts '' # No need to display anything.
         end
       end
     ensure
-      # NOTE: Is this the only way to always close the file regardless of the
-      # result of event happening to the main thread?
       file&.close
     end
 
