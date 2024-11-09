@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
+require_relative 'validated'
+
 module Kubetailrb
   # Read file content
   class FileReader
+    include Validated
+
     attr_reader :filepath, :last_nb_lines
 
     def initialize(filepath:, last_nb_lines:, follow:)
@@ -30,11 +34,8 @@ module Kubetailrb
     def validate
       raise NoSuchFileError, "#{@filepath} not found" unless File.exist?(@filepath)
 
-      last_nb_lines_valid = @last_nb_lines.is_a?(Integer) && @last_nb_lines.positive?
-
-      raise InvalidArgumentError, "Invalid last_nb_lines: #{@last_nb_lines}." unless last_nb_lines_valid
-
-      raise InvalidArgumentError, "Invalid follow: #{@follow}." unless @follow.is_a?(Boolean)
+      validate_last_nb_lines @last_nb_lines
+      validate_follow @follow
     end
 
     #
@@ -117,9 +118,5 @@ module Kubetailrb
 
   # NOTE: We can create custom exceptions by extending RuntimeError.
   class NoSuchFileError < RuntimeError
-  end
-
-  # NOTE: Is there a generic error in Ruby that represents this type of error?
-  class InvalidArgumentError < RuntimeError
   end
 end

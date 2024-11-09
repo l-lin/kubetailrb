@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'kubetailrb/k8s_pod_reader'
+require 'kubetailrb/k8s_pods_reader'
 
 module Kubetailrb
   module Cmd
@@ -14,13 +14,13 @@ module Kubetailrb
       attr_reader :reader
 
       def initialize(
-        pod_name:,
+        pod_query:,
         namespace: DEFAULT_NAMESPACE,
         last_nb_lines: DEFAULT_NB_LINES,
         follow: DEFAULT_FOLLOW
       )
-        @reader = Kubetailrb::K8sPodReader.create(
-          pod_name: pod_name,
+        @reader = Kubetailrb::K8sPodsReader.new(
+          pod_query: pod_query,
           namespace: namespace,
           last_nb_lines: last_nb_lines,
           follow: follow
@@ -34,14 +34,14 @@ module Kubetailrb
       class << self
         def create(*args)
           new(
-            pod_name: parse_pod_name(*args),
+            pod_query: parse_pod_query(*args),
             namespace: parse_namespace(*args),
             last_nb_lines: parse_nb_lines(*args),
             follow: parse_follow(*args)
           )
         end
 
-        def parse_pod_name(*args)
+        def parse_pod_query(*args)
           # TODO: We could be smarter here? For example, if the pod names are
           # provided at the end of the command, like this:
           #   kubetailrb --tail 3 some-pod

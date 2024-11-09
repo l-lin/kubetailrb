@@ -42,18 +42,21 @@ Flags:
     When I run `kubetailrb --file ../../test/test_helper.rb`
     Then the output should contain:
 """
-# frozen_string_literal: true
+  # file suffix.  e.g. a file named foo.json would be a "json" subdirectory.
+  def open_test_file(name)
+    File.new(File.join(File.dirname(__FILE__), name.split('.').last, name))
+  end
 
-$LOAD_PATH.unshift File.expand_path('../lib', __dir__)
-require 'kubetailrb'
-
-require 'minitest/autorun'
-require 'webmock/minitest'
+  def stub_core_api_list
+    stub_request(:get, %r{/api/v1$})
+      .to_return(body: open_test_file('core_api_resource_list.json'), status: 200)
+  end
+end
 """
 
   Scenario: Display partial file content
     When I run `kubetailrb --file ../../test/test_helper.rb --tail 1`
     Then the output should contain:
 """
-require 'webmock/minitest'
+end
 """

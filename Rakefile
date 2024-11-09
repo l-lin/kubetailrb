@@ -48,21 +48,31 @@ namespace :k8s do
     `k3d cluster delete #{k3d_cluster}`
   end
 
-  desc 'Deploy clock application.'
-  task :deploy_clock do
+  desc 'Deploy application to k8s.'
+  task :deploy, [:app_name] do |_, args|
     next unless k8s_up?
 
-    app_name = 'clock'
+    app_name = args[:app_name]
+
+    next if app_name.nil? || app_name.strip.empty?
+
     docker_image = "registry.localhost:5000/#{app_name}"
     clock_dir = "k3d/#{app_name}"
 
     puts "Building Docker image #{docker_image}"
     `docker build -t #{docker_image} #{clock_dir}`
     `docker push #{docker_image}`
-
-    puts `kubectl delete po #{app_name}` if pod_up?(app_name)
-
+    puts `kubectl delete po #{app_name} --force true` if pod_up?(app_name)
     puts `kubectl run #{app_name} --image #{docker_image}`
+  end
+
+  desc 'Deploy all applications to k8s.'
+  task :deploy_all do
+    Rake::Task['k8s:deploy'].invoke('clock')
+    # Rake does not actually run the task, but rather it adds it to a task
+    # queue. So we need to re-enable the task so it can be run again.
+    Rake::Task['k8s:deploy'].reenable
+    Rake::Task['k8s:deploy'].invoke('clock-json')
   end
 end
 

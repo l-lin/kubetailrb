@@ -12,7 +12,7 @@ module Kubetailrb
           actual = K8s.create(*args)
 
           assert_instance_of K8s, actual
-          assert_equal 'some-pod', actual.reader.pod_name
+          assert_equal(/some-pod/, actual.reader.pod_query)
           assert_equal 'default', actual.reader.namespace
           assert_equal 10, actual.reader.last_nb_lines
           refute actual.reader.follow?
@@ -24,7 +24,7 @@ module Kubetailrb
           actual = K8s.create(*args)
 
           assert_instance_of K8s, actual
-          assert_equal 'some-pod', actual.reader.pod_name
+          assert_equal(/some-pod/, actual.reader.pod_query)
           assert_equal 'some-namespace', actual.reader.namespace
           assert_equal 3, actual.reader.last_nb_lines
           assert actual.reader.follow?
@@ -36,7 +36,7 @@ module Kubetailrb
           actual = K8s.create(*args)
 
           assert_instance_of K8s, actual
-          assert_equal 'some-pod', actual.reader.pod_name
+          assert_equal(/some-pod/, actual.reader.pod_query)
           assert_equal 'some-namespace', actual.reader.namespace
           assert_equal 10, actual.reader.last_nb_lines
           assert actual.reader.follow?
