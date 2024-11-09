@@ -8,6 +8,7 @@ module Kubetailrb
     class K8s
       DEFAULT_NB_LINES = 10
       DEFAULT_FOLLOW = false
+      DEFAULT_RAW = false
       DEFAULT_NAMESPACE = 'default'
       NAMESPACE_FLAGS = %w[-n --namespace].freeze
       TAIL_FLAG = '--tail'
@@ -17,13 +18,17 @@ module Kubetailrb
         pod_query:,
         namespace: DEFAULT_NAMESPACE,
         last_nb_lines: DEFAULT_NB_LINES,
-        follow: DEFAULT_FOLLOW
+        follow: DEFAULT_FOLLOW,
+        raw: DEFAULT_RAW
       )
         @reader = Kubetailrb::K8sPodsReader.new(
           pod_query: pod_query,
-          namespace: namespace,
-          last_nb_lines: last_nb_lines,
-          follow: follow
+          opts: K8sOpts.new(
+            namespace: namespace,
+            last_nb_lines: last_nb_lines,
+            follow: follow,
+            raw: raw
+          )
         )
       end
 
@@ -37,7 +42,8 @@ module Kubetailrb
             pod_query: parse_pod_query(*args),
             namespace: parse_namespace(*args),
             last_nb_lines: parse_nb_lines(*args),
-            follow: parse_follow(*args)
+            follow: parse_follow(*args),
+            raw: parse_raw(*args)
           )
         end
 
@@ -103,6 +109,14 @@ module Kubetailrb
 
         def parse_follow(*args)
           flags = %w[-f --follow]
+
+          return DEFAULT_FOLLOW unless args.any? { |arg| flags.include?(arg) }
+
+          true
+        end
+
+        def parse_raw(*args)
+          flags = %w[-r --raw]
 
           return DEFAULT_FOLLOW unless args.any? { |arg| flags.include?(arg) }
 

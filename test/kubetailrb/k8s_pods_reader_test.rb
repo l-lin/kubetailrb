@@ -9,13 +9,16 @@ module Kubetailrb
 
     describe '.new' do
       it 'should raise an error if the pod query is not set' do
-        given_invalid_pod_query.each do |invalid_pod_query|
+        given_invalid_string.each do |invalid_pod_query|
           actual = assert_raises(InvalidArgumentError) do
             K8sPodsReader.new(
               pod_query: invalid_pod_query,
-              namespace: NAMESPACE,
-              last_nb_lines: 10,
-              follow: false
+              opts: K8sOpts.new(
+                namespace: NAMESPACE,
+                last_nb_lines: 10,
+                follow: false,
+                raw: false
+              )
             )
           end
 
@@ -23,65 +26,8 @@ module Kubetailrb
         end
       end
 
-      it 'should raise an error if the namespace is not set' do
-        given_invalid_namespace.each do |invalid_namespace|
-          actual = assert_raises(InvalidArgumentError) do
-            K8sPodsReader.new(
-              pod_query: POD_QUERY,
-              namespace: invalid_namespace,
-              last_nb_lines: 10,
-              follow: false
-            )
-          end
-
-          assert_equal 'Namespace not set.', actual.message
-        end
-      end
-
-      it 'should raise an error if the last nb lines is invalid' do
-        given_invalid_last_nb_lines.each do |invalid_last_nb_lines|
-          actual = assert_raises(InvalidArgumentError) do
-            K8sPodsReader.new(
-              pod_query: POD_QUERY,
-              namespace: NAMESPACE,
-              last_nb_lines: invalid_last_nb_lines,
-              follow: false
-            )
-          end
-
-          assert_equal "Invalid last_nb_lines: #{invalid_last_nb_lines}.", actual.message
-        end
-      end
-
-      it 'should raise an error if follow is invalid' do
-        given_invalid_follow.each do |follow|
-          actual = assert_raises(InvalidArgumentError) do
-            K8sPodsReader.new(
-              pod_query: POD_QUERY,
-              namespace: NAMESPACE,
-              last_nb_lines: 10,
-              follow: follow
-            )
-          end
-
-          assert_equal "Invalid follow: #{follow}.", actual.message
-        end
-      end
-
-      def given_invalid_pod_query
+      def given_invalid_string
         [nil, '', '   ']
-      end
-
-      def given_invalid_namespace
-        [nil, '', '   ']
-      end
-
-      def given_invalid_last_nb_lines
-        [0, -1, 'a string']
-      end
-
-      def given_invalid_follow
-        [nil, [], 0, -1, 'a string']
       end
     end
 
@@ -98,9 +44,12 @@ module Kubetailrb
         reader = K8sPodsReader.new(
           k8s_client: @k8s_client,
           pod_query: POD_QUERY,
-          namespace: NAMESPACE,
-          last_nb_lines: 3,
-          follow: false
+          opts: K8sOpts.new(
+            namespace: NAMESPACE,
+            last_nb_lines: 3,
+            follow: false,
+            raw: false
+          )
         )
 
         assert_output('') { reader.read }
@@ -111,22 +60,30 @@ module Kubetailrb
         stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods")
           .to_return(body: open_test_file('pod_list.json'), status: 200)
 
-        expected = <<~EXPECTED
+        pod_logs = <<~PODLOGS
           some pod log 1
           some pod log 2
           some pod log 3
-        EXPECTED
+        PODLOGS
         stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods/some-pod/log?tailLines=3")
-          .to_return(status: 200, body: expected)
+          .to_return(status: 200, body: pod_logs)
 
         reader = K8sPodsReader.new(
           k8s_client: @k8s_client,
           pod_query: POD_QUERY,
-          namespace: NAMESPACE,
-          last_nb_lines: 3,
-          follow: false
+          opts: K8sOpts.new(
+            namespace: NAMESPACE,
+            last_nb_lines: 3,
+            follow: false,
+            raw: false
+          )
         )
 
+        expected = <<~EXPECTED
+          some-pod - some pod log 1
+          some-pod - some pod log 2
+          some-pod - some pod log 3
+        EXPECTED
         assert_output(expected) { reader.read }
       end
 
@@ -154,12 +111,55 @@ module Kubetailrb
         reader = K8sPodsReader.new(
           k8s_client: @k8s_client,
           pod_query: '.',
-          namespace: NAMESPACE,
-          last_nb_lines: 3,
-          follow: false
+          opts: K8sOpts.new(
+            namespace: NAMESPACE,
+            last_nb_lines: 3,
+            follow: false,
+            raw: false
+          )
         )
 
-        assert_output(redis_logs + some_pod_logs) { reader.read }
+        expected = <<~EXPECTED
+          redis-master - redis log 1
+          redis-master - redis log 2
+          redis-master - redis log 3
+          some-pod - some pod log 1
+          some-pod - some pod log 2
+          some-pod - some pod log 3
+        EXPECTED
+        assert_output(expected) { reader.read }
+      end
+
+      it 'should display not display pod name if raw property is set to true' do
+        stub_core_api_list
+        stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods")
+          .to_return(body: open_test_file('pod_list.json'), status: 200)
+
+        pod_logs = <<~PODLOGS
+          some pod log 1
+          some pod log 2
+          some pod log 3
+        PODLOGS
+        stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods/some-pod/log?tailLines=3")
+          .to_return(status: 200, body: pod_logs)
+
+        reader = K8sPodsReader.new(
+          k8s_client: @k8s_client,
+          pod_query: POD_QUERY,
+          opts: K8sOpts.new(
+            namespace: NAMESPACE,
+            last_nb_lines: 3,
+            follow: false,
+            raw: true
+          )
+        )
+
+        expected = <<~EXPECTED
+          some pod log 1
+          some pod log 2
+          some pod log 3
+        EXPECTED
+        assert_output(expected) { reader.read }
       end
     end
   end

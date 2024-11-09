@@ -12,8 +12,8 @@ module Kubetailrb
       raise InvalidArgumentError, "Invalid last_nb_lines: #{last_nb_lines}." unless last_nb_lines_valid
     end
 
-    def validate_follow(follow)
-      raise InvalidArgumentError, "Invalid follow: #{follow}." unless follow.is_a?(Boolean)
+    def validate_boolean(follow, error_message)
+      raise InvalidArgumentError, error_message unless follow.is_a?(Boolean)
     end
   end
 

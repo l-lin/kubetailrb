@@ -9,13 +9,16 @@ module Kubetailrb
 
     describe '.new' do
       it 'should raise an error if the pod name is not set' do
-        given_invalid_pod_name.each do |invalid_pod_name|
+        given_invalid_string.each do |invalid_pod_name|
           actual = assert_raises(InvalidArgumentError) do
             K8sPodReader.new(
               pod_name: invalid_pod_name,
-              namespace: NAMESPACE,
-              last_nb_lines: 10,
-              follow: false
+              opts: K8sOpts.new(
+                namespace: NAMESPACE,
+                last_nb_lines: 3,
+                follow: false,
+                raw: false
+              )
             )
           end
 
@@ -23,65 +26,19 @@ module Kubetailrb
         end
       end
 
-      it 'should raise an error if the namespace is not set' do
-        given_invalid_namespace.each do |invalid_namespace|
-          actual = assert_raises(InvalidArgumentError) do
-            K8sPodReader.new(
-              pod_name: POD_NAME,
-              namespace: invalid_namespace,
-              last_nb_lines: 10,
-              follow: false
-            )
-          end
-
-          assert_equal 'Namespace not set.', actual.message
+      it 'should raise an error if the opts is not set' do
+        actual = assert_raises(InvalidArgumentError) do
+          K8sPodReader.new(
+            pod_name: POD_NAME,
+            opts: nil
+          )
         end
+
+        assert_equal 'Opts not set.', actual.message
       end
 
-      it 'should raise an error if the last nb lines is invalid' do
-        given_invalid_last_nb_lines.each do |invalid_last_nb_lines|
-          actual = assert_raises(InvalidArgumentError) do
-            K8sPodReader.new(
-              pod_name: POD_NAME,
-              namespace: NAMESPACE,
-              last_nb_lines: invalid_last_nb_lines,
-              follow: false
-            )
-          end
-
-          assert_equal "Invalid last_nb_lines: #{invalid_last_nb_lines}.", actual.message
-        end
-      end
-
-      it 'should raise an error if follow is invalid' do
-        given_invalid_follow.each do |follow|
-          actual = assert_raises(InvalidArgumentError) do
-            K8sPodReader.new(
-              pod_name: POD_NAME,
-              namespace: NAMESPACE,
-              last_nb_lines: 10,
-              follow: follow
-            )
-          end
-
-          assert_equal "Invalid follow: #{follow}.", actual.message
-        end
-      end
-
-      def given_invalid_pod_name
+      def given_invalid_string
         [nil, '', '   ']
-      end
-
-      def given_invalid_namespace
-        [nil, '', '   ']
-      end
-
-      def given_invalid_last_nb_lines
-        [0, -1, 'a string']
-      end
-
-      def given_invalid_follow
-        [nil, [], 0, -1, 'a string']
       end
     end
 
@@ -90,52 +47,90 @@ module Kubetailrb
         @k8s_client = Kubeclient::Client.new('http://localhost:8080/api/', 'v1')
       end
 
-      it 'should get pod logs if given 3 last nb lines and not watched' do
+      it 'should get pod logs with pod name if given 3 last nb lines and not watched and raw disabled' do
         reader = K8sPodReader.new(
           k8s_client: @k8s_client,
           pod_name: POD_NAME,
-          namespace: NAMESPACE,
-          last_nb_lines: 3,
-          follow: false
+          opts: K8sOpts.new(
+            namespace: NAMESPACE,
+            last_nb_lines: 3,
+            follow: false,
+            raw: false
+          )
         )
-        expected = <<~EXPECTED
+        pod_logs = <<~PODLOGS
           log 1
           log 2
           log 3
-        EXPECTED
+        PODLOGS
         stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods/#{POD_NAME}/log?tailLines=3")
-          .to_return(status: 200, body: expected)
+          .to_return(status: 200, body: pod_logs)
 
+        expected = <<~EXPECTED
+          some-pod - log 1
+          some-pod - log 2
+          some-pod - log 3
+        EXPECTED
         assert_output(expected) { reader.read }
       end
 
-      it 'should get pod logs in stream if given 3 last nb lines and are watched' do
+      it 'should get pod logs without pod name if given 3 last nb lines and not watched and raw enabled' do
         reader = K8sPodReader.new(
           k8s_client: @k8s_client,
           pod_name: POD_NAME,
-          namespace: NAMESPACE,
-          last_nb_lines: 3,
-          follow: true
+          opts: K8sOpts.new(
+            namespace: NAMESPACE,
+            last_nb_lines: 3,
+            follow: false,
+            raw: true
+          )
         )
-
-        expected = <<~EXPECTED
+        pod_logs = <<~PODLOGS
           log 1
           log 2
           log 3
-        EXPECTED
+        PODLOGS
         stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods/#{POD_NAME}/log?tailLines=3")
-          .to_return(status: 200, body: expected)
+          .to_return(status: 200, body: pod_logs)
 
-        logs_from_watch = <<~EXPECTED
+        assert_output(pod_logs) { reader.read }
+      end
+
+      it 'should get pod logs in stream if given 3 last nb lines and are watched and raw disabled' do
+        reader = K8sPodReader.new(
+          k8s_client: @k8s_client,
+          pod_name: POD_NAME,
+          opts: K8sOpts.new(
+            namespace: NAMESPACE,
+            last_nb_lines: 3,
+            follow: true,
+            raw: false
+          )
+        )
+
+        previous_logs = <<~LOGS
+          log 1
+          log 2
+          log 3
+        LOGS
+        stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods/#{POD_NAME}/log?tailLines=3")
+          .to_return(status: 200, body: previous_logs)
+
+        logs_from_watch = <<~LOGS
           previous log 1
           previous log 2
           previous log 3
           previous log 4
-          #{expected}
-        EXPECTED
+          #{previous_logs}
+        LOGS
         stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods/#{POD_NAME}/log?follow=true")
           .to_return(status: 200, body: logs_from_watch)
 
+        expected = <<~EXPECTED
+          some-pod - log 1
+          some-pod - log 2
+          some-pod - log 3
+        EXPECTED
         assert_output(expected) { reader.read }
       end
     end

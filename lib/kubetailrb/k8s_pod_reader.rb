@@ -4,27 +4,25 @@ require_relative 'with_k8s_client'
 require_relative 'validated'
 
 module Kubetailrb
-  # Read Kuberentes pod logs.
+  # Read Kubernetes pod logs.
   class K8sPodReader
     include Validated
     include WithK8sClient
 
-    attr_reader :pod_name, :namespace, :last_nb_lines
+    attr_reader :pod_name, :opts
 
-    def initialize(pod_name:, namespace:, last_nb_lines:, follow:, k8s_client: nil)
+    def initialize(pod_name:, opts:, k8s_client: nil)
+      validate(pod_name, opts)
+
       @k8s_client = k8s_client
       @pod_name = pod_name
-      @namespace = namespace
-      @last_nb_lines = last_nb_lines
-      @follow = follow
-
-      validate
+      @opts = opts
     end
 
     def read
-      pod_logs = k8s_client.get_pod_log(@pod_name, @namespace, tail_lines: @last_nb_lines)
-      unless follow?
-        puts pod_logs
+      pod_logs = k8s_client.get_pod_log(@pod_name, @opts.namespace, tail_lines: @opts.last_nb_lines)
+      unless @opts.follow?
+        print_logs pod_logs
         return
       end
 
@@ -34,27 +32,33 @@ module Kubetailrb
       # assume every logs are different, which may not be true.
       # But it does the job for most cases.
       first_log_to_display = pod_logs.to_s.split("\n").first
-      print_logs = false
+      should_print_logs = false
 
-      k8s_client.watch_pod_log(@pod_name, @namespace) do |line|
+      k8s_client.watch_pod_log(@pod_name, @opts.namespace) do |line|
         # NOTE: Is it good practice to update a variable that is outside of a
         # block? Can we do better?
-        print_logs = true if line == first_log_to_display
-        puts line if print_logs
-      end
-    end
+        should_print_logs = true if line == first_log_to_display
 
-    def follow?
-      @follow
+        print_logs(line) if should_print_logs
+      end
     end
 
     private
 
-    def validate
-      raise_if_blank @pod_name, 'Pod name not set.'
-      raise_if_blank @namespace, 'Namespace not set.'
-      validate_last_nb_lines @last_nb_lines
-      validate_follow @follow
+    def validate(pod_name, opts)
+      raise_if_blank pod_name, 'Pod name not set.'
+
+      raise InvalidArgumentError, 'Opts not set.' if opts.nil?
+    end
+
+    def print_logs(logs)
+      if @opts.raw?
+        puts logs
+      elsif logs.to_s.include?("\n")
+        logs.to_s.split("\n").each { |log| print_logs(log) }
+      else
+        puts "#{@pod_name} - #{logs}"
+      end
     end
   end
 end

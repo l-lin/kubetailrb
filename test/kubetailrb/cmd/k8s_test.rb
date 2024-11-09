@@ -13,21 +13,23 @@ module Kubetailrb
 
           assert_instance_of K8s, actual
           assert_equal(/some-pod/, actual.reader.pod_query)
-          assert_equal 'default', actual.reader.namespace
-          assert_equal 10, actual.reader.last_nb_lines
-          refute actual.reader.follow?
+          assert_equal 'default', actual.reader.opts.namespace
+          assert_equal 10, actual.reader.opts.last_nb_lines
+          refute actual.reader.opts.follow?
+          refute actual.reader.opts.raw?
         end
 
-        it 'should return k8s command with custom last nb lines if `--tail`, `--follow` & `--namespace flags' do
-          args = %w[some-pod --tail 3 --follow --namespace some-namespace]
+        it 'should return k8s command with custom last nb lines if all flags customized' do
+          args = %w[some-pod --tail 3 --follow --raw --namespace some-namespace]
 
           actual = K8s.create(*args)
 
           assert_instance_of K8s, actual
           assert_equal(/some-pod/, actual.reader.pod_query)
-          assert_equal 'some-namespace', actual.reader.namespace
-          assert_equal 3, actual.reader.last_nb_lines
-          assert actual.reader.follow?
+          assert_equal 'some-namespace', actual.reader.opts.namespace
+          assert_equal 3, actual.reader.opts.last_nb_lines
+          assert actual.reader.opts.follow?
+          assert actual.reader.opts.raw?
         end
 
         it 'should return k8s command with custom last nb lines if `-f` and `-n` flags' do
@@ -37,9 +39,10 @@ module Kubetailrb
 
           assert_instance_of K8s, actual
           assert_equal(/some-pod/, actual.reader.pod_query)
-          assert_equal 'some-namespace', actual.reader.namespace
-          assert_equal 10, actual.reader.last_nb_lines
-          assert actual.reader.follow?
+          assert_equal 'some-namespace', actual.reader.opts.namespace
+          assert_equal 10, actual.reader.opts.last_nb_lines
+          assert actual.reader.opts.follow?
+          refute actual.reader.opts.raw?
         end
 
         it 'should raise InvalidNbLinesValueError if given an invalid `--tail` flag value' do

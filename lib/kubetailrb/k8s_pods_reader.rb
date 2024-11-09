@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative 'k8s_opts'
 require_relative 'k8s_pod_reader'
 require_relative 'with_k8s_client'
 
@@ -9,31 +10,25 @@ module Kubetailrb
     include Validated
     include WithK8sClient
 
-    attr_reader :pod_query, :namespace, :last_nb_lines
+    attr_reader :pod_query, :opts
 
-    def initialize(pod_query:, namespace:, last_nb_lines:, follow:, k8s_client: nil)
-      validate(pod_query, namespace, last_nb_lines, follow)
+    def initialize(pod_query:, opts:, k8s_client: nil)
+      validate(pod_query, opts)
 
       @k8s_client = k8s_client
       @pod_query = Regexp.new(pod_query)
-      @namespace = namespace
-      @last_nb_lines = last_nb_lines
-      @follow = follow
+      @opts = opts
     end
 
     def read
       pods = find_pods
 
       threads = pods.map do |pod|
-        # TODO: Use thread pool instead! Otherwise, with 1k+ pods, we might kill
-        # our machine...
         Thread.new do
           K8sPodReader.new(
             k8s_client: k8s_client,
             pod_name: pod.metadata.name,
-            namespace: @namespace,
-            last_nb_lines: @last_nb_lines,
-            follow: @follow
+            opts: @opts
           ).read
         end
       end
@@ -42,22 +37,17 @@ module Kubetailrb
       threads.each(&:join)
     end
 
-    def follow?
-      @follow
-    end
-
     private
 
-    def validate(pod_query, namespace, last_nb_lines, follow)
+    def validate(pod_query, opts)
       raise_if_blank pod_query, 'Pod query not set.'
-      raise_if_blank namespace, 'Namespace not set.'
-      validate_last_nb_lines last_nb_lines
-      validate_follow follow
+
+      raise InvalidArgumentError, 'Opts not set.' if opts.nil?
     end
 
     def find_pods
       k8s_client
-        .get_pods(namespace: @namespace)
+        .get_pods(namespace: @opts.namespace)
         .select { |pod| pod.metadata.name.match?(@pod_query) }
     end
   end

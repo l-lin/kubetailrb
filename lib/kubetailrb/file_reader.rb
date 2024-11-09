@@ -35,7 +35,7 @@ module Kubetailrb
       raise NoSuchFileError, "#{@filepath} not found" unless File.exist?(@filepath)
 
       validate_last_nb_lines @last_nb_lines
-      validate_follow @follow
+      validate_boolean @follow, "Invalid follow: #{@follow}."
     end
 
     #
