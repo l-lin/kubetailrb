@@ -87,6 +87,7 @@ It seems the convention is:
 
 - `lib/` contains the source code.
 - `test/` (or `spec/` depending on the test framework) contains the test code.
+- `features` contains the cucumber scenarios, i.e. integration tests.
 - `bin/` contains some scripts that can help the developer experience,
   - Rails projects also have scripts in this `bin/` directory.
 - `exec/` contains the executables that will be installed to the user system if
@@ -280,6 +281,10 @@ require "cmd/version"
 ```
 
 which include my classes.
+
+That raises the question of when should we add those `require` /
+`require_relative`? How can we know if one is already provided by an upstream
+class?
 
 ### Method verb conjugation
 

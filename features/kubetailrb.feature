@@ -34,3 +34,23 @@ Flags:
   Scenario: Display version
     When I run `kubetailrb --version`
     Then the output should contain "0.1.0"
+
+  # NOTE: Tests are not executed at project root folder, but under 'tmp/aruba'!
+  Scenario: Display file content
+    When I run `kubetailrb --file ../../test/test_helper.rb`
+    Then the output should contain:
+"""
+# frozen_string_literal: true
+
+$LOAD_PATH.unshift File.expand_path('../lib', __dir__)
+require 'kubetailrb'
+
+require 'minitest/autorun'
+"""
+
+  Scenario: Display partial file content
+    When I run `kubetailrb --file ../../test/test_helper.rb --tail 1`
+    Then the output should contain:
+"""
+require 'minitest/autorun'
+"""
