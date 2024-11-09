@@ -6,7 +6,7 @@ module Kubetailrb
   class K8sPodReaderTest
     K8S_CLIENT = 'stubbed-k8s-client'
     POD_NAME = 'some-pod'
-    NAMESPACE = 'namespace'
+    NAMESPACE = 'some-namespace'
 
     describe '.new' do
       it 'should raise an error if the k8s client is not set' do
@@ -103,6 +103,61 @@ module Kubetailrb
 
       def given_invalid_follow
         [nil, [], 0, -1, 'a string']
+      end
+    end
+
+    describe '.read' do
+      before :each do
+        @k8s_client = Kubeclient::Client.new('http://localhost:8080/api/', 'v1')
+      end
+
+      it 'should get pod logs if given 3 last nb lines and not watched' do
+        reader = K8sPodReader.new(
+          k8s_client: @k8s_client,
+          pod_name: POD_NAME,
+          namespace: NAMESPACE,
+          last_nb_lines: 3,
+          follow: false
+        )
+        expected = <<~EXPECTED
+          log 1
+          log 2
+          log 3
+        EXPECTED
+        stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods/#{POD_NAME}/log?tailLines=3")
+          .to_return(status: 200, body: expected)
+
+        assert_output(expected) { reader.read }
+      end
+
+      it 'should get pod logs in stream if given 3 last nb lines and are watched' do
+        reader = K8sPodReader.new(
+          k8s_client: @k8s_client,
+          pod_name: POD_NAME,
+          namespace: NAMESPACE,
+          last_nb_lines: 3,
+          follow: true
+        )
+
+        expected = <<~EXPECTED
+          log 1
+          log 2
+          log 3
+        EXPECTED
+        stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods/#{POD_NAME}/log?tailLines=3")
+          .to_return(status: 200, body: expected)
+
+        logs_from_watch = <<~EXPECTED
+          previous log 1
+          previous log 2
+          previous log 3
+          previous log 4
+          #{expected}
+        EXPECTED
+        stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods/#{POD_NAME}/log?follow=true")
+          .to_return(status: 200, body: logs_from_watch)
+
+        assert_output(expected) { reader.read }
       end
     end
   end

@@ -46,11 +46,12 @@ $LOAD_PATH.unshift File.expand_path('../lib', __dir__)
 require 'kubetailrb'
 
 require 'minitest/autorun'
+require 'webmock/minitest'
 """
 
   Scenario: Display partial file content
     When I run `kubetailrb --file ../../test/test_helper.rb --tail 1`
     Then the output should contain:
 """
-require 'minitest/autorun'
+require 'webmock/minitest'
 """

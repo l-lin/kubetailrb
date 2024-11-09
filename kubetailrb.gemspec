@@ -60,4 +60,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rubocop-minitest', '~> 0.36.0' # Code style checking for Minitest files.
   spec.add_development_dependency 'rubocop-rake', '~> 0.6.0'      # Rubocop plugin for Rake.
   spec.add_development_dependency 'ruby-lsp'                      # Language Server for Ruby.
+  spec.add_development_dependency 'webmock', '~> 3.0'             # Stubbing HTTP requests.
 end

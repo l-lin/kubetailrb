@@ -21,9 +21,24 @@ module Kubetailrb
       @k8s_client = create_k8s_client if @k8s_client.nil?
 
       if follow?
-        # TODO: take into account last nb line!
+
+        # NOTE: The watch method from kubeclient does not accept `tail_lines`
+        # argument, so I had to resort to some hack... by using the first log to
+        # print out. Not ideal, since it's not really the N last nb lines, and
+        # assume every logs are different, which may not be true.
+        # But it does the job for most cases.
+        first_log_to_display = @k8s_client.get_pod_log(
+          @pod_name,
+          @namespace,
+          tail_lines: @last_nb_lines
+        ).to_s.split("\n").first
+        print_logs = false
+
         @k8s_client.watch_pod_log(@pod_name, @namespace) do |line|
-          puts line
+          # NOTE: Is it good practice to update a variable that is outside of a
+          # block? Can we do better?
+          print_logs = true if line == first_log_to_display
+          puts line if print_logs
         end
       else
         puts @k8s_client.get_pod_log(@pod_name, @namespace, tail_lines: @last_nb_lines)

@@ -8,6 +8,9 @@ AllCops:
 Metrics/BlockLength:
   Enabled: false
 
+Metrics/ClassLength:
+  Enabled: false
+
 Metrics/MethodLength:
   Enabled: true
   Max: 40
