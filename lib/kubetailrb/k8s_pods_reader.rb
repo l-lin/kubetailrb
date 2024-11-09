@@ -24,6 +24,8 @@ module Kubetailrb
     def read
       pods = find_pods
 
+      watch_for_new_pod_events
+
       threads = pods.map do |pod|
         # NOTE: How much memory does a Ruby Thread takes? Can we spawn hundreds
         # to thoudsands of Threads without issue?
@@ -54,7 +56,34 @@ module Kubetailrb
     def find_pods
       k8s_client
         .get_pods(namespace: @opts.namespace)
-        .select { |pod| pod.metadata.name.match?(@pod_query) }
+        .select { |pod| applicable?(pod) }
+    end
+
+    #
+    # Watch any pod events, and if there's another pod that validates the pod
+    # query, then let's read the pod logs!
+    #
+    def watch_for_new_pod_events
+      k8s_client.watch_pods(namespace: @opts.namespace) do |notice|
+        if new_pod_event?(notice) && applicable?(notice.object)
+          Thread.new do
+            K8sPodReader.new(
+              k8s_client: k8s_client,
+              pod_name: notice.object.metadata.name,
+              formatter: @formatter,
+              opts: @opts
+            ).read
+          end
+        end
+      end
+    end
+
+    def applicable?(pod)
+      pod.metadata.name.match?(@pod_query)
+    end
+
+    def new_pod_event?(notice)
+      notice.type == 'ADDED' && notice.object.kind == 'Pod'
     end
   end
 end

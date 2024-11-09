@@ -22,7 +22,7 @@ module Kubetailrb
     end
 
     def read
-      pod_logs = k8s_client.get_pod_log(@pod_name, @opts.namespace, tail_lines: @opts.last_nb_lines)
+      pod_logs = read_pod_logs
       unless @opts.follow?
         print_logs pod_logs
         return
@@ -62,6 +62,15 @@ module Kubetailrb
         puts @formatter.format(logs)
       else
         puts "#{@pod_name} - #{@formatter.format logs}"
+      end
+    end
+
+    def read_pod_logs
+      120.times do
+        return k8s_client.get_pod_log(@pod_name, @opts.namespace, tail_lines: @opts.last_nb_lines)
+      rescue Kubeclient::HttpError => e
+        puts e.message
+        sleep 1
       end
     end
   end

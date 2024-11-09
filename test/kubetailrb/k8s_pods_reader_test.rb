@@ -58,6 +58,8 @@ module Kubetailrb
         stub_core_api_list
         stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods")
           .to_return(body: open_test_file('empty_pod_list.json'), status: 200)
+        stub_request(:get, "http://localhost:8080/api/v1/watch/namespaces/#{NAMESPACE}/pods")
+          .to_return(status: 200, body: '')
 
         reader = K8sPodsReader.new(
           k8s_client: @k8s_client,
@@ -86,6 +88,9 @@ module Kubetailrb
         PODLOGS
         stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods/some-pod/log?tailLines=3")
           .to_return(status: 200, body: pod_logs)
+
+        stub_request(:get, "http://localhost:8080/api/v1/watch/namespaces/#{NAMESPACE}/pods")
+          .to_return(status: 200, body: '')
 
         reader = K8sPodsReader.new(
           k8s_client: @k8s_client,
@@ -128,6 +133,9 @@ module Kubetailrb
         stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods/some-pod/log?tailLines=3")
           .to_return(status: 200, body: some_pod_logs)
 
+        stub_request(:get, "http://localhost:8080/api/v1/watch/namespaces/#{NAMESPACE}/pods")
+          .to_return(status: 200, body: '')
+
         reader = K8sPodsReader.new(
           k8s_client: @k8s_client,
           pod_query: '.',
@@ -164,6 +172,9 @@ module Kubetailrb
         stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods/some-pod/log?tailLines=3")
           .to_return(status: 200, body: pod_logs)
 
+        stub_request(:get, "http://localhost:8080/api/v1/watch/namespaces/#{NAMESPACE}/pods")
+          .to_return(status: 200, body: '')
+
         reader = K8sPodsReader.new(
           k8s_client: @k8s_client,
           pod_query: POD_QUERY,
@@ -183,6 +194,8 @@ module Kubetailrb
         EXPECTED
         assert_output(expected) { reader.read }
       end
+
+      # TODO: Add tests when adding new pod.
     end
   end
 end
