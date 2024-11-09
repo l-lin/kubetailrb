@@ -1,35 +1,26 @@
 # frozen_string_literal: true
 
 require 'kubetailrb/k8s_pods_reader'
+require 'kubetailrb/json_formatter'
+require 'kubetailrb/no_op_formatter'
 
 module Kubetailrb
   module Cmd
     # Command to read k8s pod logs.
     class K8s
       DEFAULT_NB_LINES = 10
-      DEFAULT_FOLLOW = false
-      DEFAULT_RAW = false
       DEFAULT_NAMESPACE = 'default'
+
       NAMESPACE_FLAGS = %w[-n --namespace].freeze
       TAIL_FLAG = '--tail'
+      FOLLOW_FLAGS = %w[-f --follow].freeze
+      RAW_FLAGS = %w[-r --raw].freeze
+      PRETTY_PRINT_FLAGS = %w[-p --pretty].freeze
+
       attr_reader :reader
 
-      def initialize(
-        pod_query:,
-        namespace: DEFAULT_NAMESPACE,
-        last_nb_lines: DEFAULT_NB_LINES,
-        follow: DEFAULT_FOLLOW,
-        raw: DEFAULT_RAW
-      )
-        @reader = Kubetailrb::K8sPodsReader.new(
-          pod_query: pod_query,
-          opts: K8sOpts.new(
-            namespace: namespace,
-            last_nb_lines: last_nb_lines,
-            follow: follow,
-            raw: raw
-          )
-        )
+      def initialize(pod_query:, opts:, formatter:)
+        @reader = Kubetailrb::K8sPodsReader.new(pod_query: pod_query, formatter: formatter, opts: opts)
       end
 
       def execute
@@ -40,10 +31,13 @@ module Kubetailrb
         def create(*args)
           new(
             pod_query: parse_pod_query(*args),
-            namespace: parse_namespace(*args),
-            last_nb_lines: parse_nb_lines(*args),
-            follow: parse_follow(*args),
-            raw: parse_raw(*args)
+            formatter: parse_pretty_print(*args) ? Kubetailrb::JsonFormatter.new : Kubetailrb::NoOpFormatter.new,
+            opts: K8sOpts.new(
+              namespace: parse_namespace(*args),
+              last_nb_lines: parse_nb_lines(*args),
+              follow: parse_follow(*args),
+              raw: parse_raw(*args)
+            )
           )
         end
 
@@ -108,19 +102,15 @@ module Kubetailrb
         end
 
         def parse_follow(*args)
-          flags = %w[-f --follow]
-
-          return DEFAULT_FOLLOW unless args.any? { |arg| flags.include?(arg) }
-
-          true
+          args.any? { |arg| FOLLOW_FLAGS.include?(arg) }
         end
 
         def parse_raw(*args)
-          flags = %w[-r --raw]
+          args.any? { |arg| RAW_FLAGS.include?(arg) }
+        end
 
-          return DEFAULT_FOLLOW unless args.any? { |arg| flags.include?(arg) }
-
-          true
+        def parse_pretty_print(*args)
+          args.any? { |arg| PRETTY_PRINT_FLAGS.include?(arg) }
         end
       end
     end

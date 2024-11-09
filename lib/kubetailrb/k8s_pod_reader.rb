@@ -2,6 +2,7 @@
 
 require_relative 'with_k8s_client'
 require_relative 'validated'
+require_relative 'json_formatter'
 
 module Kubetailrb
   # Read Kubernetes pod logs.
@@ -11,11 +12,12 @@ module Kubetailrb
 
     attr_reader :pod_name, :opts
 
-    def initialize(pod_name:, opts:, k8s_client: nil)
-      validate(pod_name, opts)
+    def initialize(pod_name:, formatter:, opts:, k8s_client: nil)
+      validate(pod_name, formatter, opts)
 
       @k8s_client = k8s_client
       @pod_name = pod_name
+      @formatter = formatter
       @opts = opts
     end
 
@@ -45,19 +47,21 @@ module Kubetailrb
 
     private
 
-    def validate(pod_name, opts)
+    def validate(pod_name, formatter, opts)
       raise_if_blank pod_name, 'Pod name not set.'
+
+      raise InvalidArgumentError, 'Formatter not set.' if formatter.nil?
 
       raise InvalidArgumentError, 'Opts not set.' if opts.nil?
     end
 
     def print_logs(logs)
       if @opts.raw?
-        puts logs
+        puts @formatter.format logs
       elsif logs.to_s.include?("\n")
         logs.to_s.split("\n").each { |log| print_logs(log) }
       else
-        puts "#{@pod_name} - #{logs}"
+        puts "#{@pod_name} - #{@formatter.format logs}"
       end
     end
   end

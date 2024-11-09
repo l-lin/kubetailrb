@@ -13,6 +13,7 @@ module Kubetailrb
           actual = assert_raises(InvalidArgumentError) do
             K8sPodsReader.new(
               pod_query: invalid_pod_query,
+              formatter: NoOpFormatter.new,
               opts: K8sOpts.new(
                 namespace: NAMESPACE,
                 last_nb_lines: 10,
@@ -24,6 +25,23 @@ module Kubetailrb
 
           assert_equal 'Pod query not set.', actual.message
         end
+      end
+
+      it 'should raise an error if the formatter is not set' do
+        actual = assert_raises(InvalidArgumentError) do
+          K8sPodsReader.new(
+            pod_query: POD_QUERY,
+            formatter: nil,
+            opts: K8sOpts.new(
+              namespace: NAMESPACE,
+              last_nb_lines: 3,
+              follow: false,
+              raw: false
+            )
+          )
+        end
+
+        assert_equal 'Formatter not set.', actual.message
       end
 
       def given_invalid_string
@@ -44,6 +62,7 @@ module Kubetailrb
         reader = K8sPodsReader.new(
           k8s_client: @k8s_client,
           pod_query: POD_QUERY,
+          formatter: NoOpFormatter.new,
           opts: K8sOpts.new(
             namespace: NAMESPACE,
             last_nb_lines: 3,
@@ -71,6 +90,7 @@ module Kubetailrb
         reader = K8sPodsReader.new(
           k8s_client: @k8s_client,
           pod_query: POD_QUERY,
+          formatter: NoOpFormatter.new,
           opts: K8sOpts.new(
             namespace: NAMESPACE,
             last_nb_lines: 3,
@@ -111,6 +131,7 @@ module Kubetailrb
         reader = K8sPodsReader.new(
           k8s_client: @k8s_client,
           pod_query: '.',
+          formatter: NoOpFormatter.new,
           opts: K8sOpts.new(
             namespace: NAMESPACE,
             last_nb_lines: 3,
@@ -146,6 +167,7 @@ module Kubetailrb
         reader = K8sPodsReader.new(
           k8s_client: @k8s_client,
           pod_query: POD_QUERY,
+          formatter: NoOpFormatter.new,
           opts: K8sOpts.new(
             namespace: NAMESPACE,
             last_nb_lines: 3,

@@ -12,11 +12,12 @@ module Kubetailrb
 
     attr_reader :pod_query, :opts
 
-    def initialize(pod_query:, opts:, k8s_client: nil)
-      validate(pod_query, opts)
+    def initialize(pod_query:, formatter:, opts:, k8s_client: nil)
+      validate(pod_query, formatter, opts)
 
       @k8s_client = k8s_client
       @pod_query = Regexp.new(pod_query)
+      @formatter = formatter
       @opts = opts
     end
 
@@ -24,10 +25,13 @@ module Kubetailrb
       pods = find_pods
 
       threads = pods.map do |pod|
+        # NOTE: How much memory does a Ruby Thread takes? Can we spawn hundreds
+        # to thoudsands of Threads without issue?
         Thread.new do
           K8sPodReader.new(
             k8s_client: k8s_client,
             pod_name: pod.metadata.name,
+            formatter: @formatter,
             opts: @opts
           ).read
         end
@@ -39,8 +43,10 @@ module Kubetailrb
 
     private
 
-    def validate(pod_query, opts)
+    def validate(pod_query, formatter, opts)
       raise_if_blank pod_query, 'Pod query not set.'
+
+      raise InvalidArgumentError, 'Formatter not set.' if formatter.nil?
 
       raise InvalidArgumentError, 'Opts not set.' if opts.nil?
     end

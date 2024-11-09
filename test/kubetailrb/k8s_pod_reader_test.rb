@@ -13,6 +13,7 @@ module Kubetailrb
           actual = assert_raises(InvalidArgumentError) do
             K8sPodReader.new(
               pod_name: invalid_pod_name,
+              formatter: NoOpFormatter.new,
               opts: K8sOpts.new(
                 namespace: NAMESPACE,
                 last_nb_lines: 3,
@@ -30,11 +31,29 @@ module Kubetailrb
         actual = assert_raises(InvalidArgumentError) do
           K8sPodReader.new(
             pod_name: POD_NAME,
+            formatter: NoOpFormatter.new,
             opts: nil
           )
         end
 
         assert_equal 'Opts not set.', actual.message
+      end
+
+      it 'should raise an error if the formatter is not set' do
+        actual = assert_raises(InvalidArgumentError) do
+          K8sPodReader.new(
+            pod_name: POD_NAME,
+            formatter: nil,
+            opts: K8sOpts.new(
+              namespace: NAMESPACE,
+              last_nb_lines: 3,
+              follow: false,
+              raw: false
+            )
+          )
+        end
+
+        assert_equal 'Formatter not set.', actual.message
       end
 
       def given_invalid_string
@@ -51,6 +70,7 @@ module Kubetailrb
         reader = K8sPodReader.new(
           k8s_client: @k8s_client,
           pod_name: POD_NAME,
+          formatter: NoOpFormatter.new,
           opts: K8sOpts.new(
             namespace: NAMESPACE,
             last_nb_lines: 3,
@@ -78,6 +98,7 @@ module Kubetailrb
         reader = K8sPodReader.new(
           k8s_client: @k8s_client,
           pod_name: POD_NAME,
+          formatter: NoOpFormatter.new,
           opts: K8sOpts.new(
             namespace: NAMESPACE,
             last_nb_lines: 3,
@@ -100,6 +121,7 @@ module Kubetailrb
         reader = K8sPodReader.new(
           k8s_client: @k8s_client,
           pod_name: POD_NAME,
+          formatter: NoOpFormatter.new,
           opts: K8sOpts.new(
             namespace: NAMESPACE,
             last_nb_lines: 3,
