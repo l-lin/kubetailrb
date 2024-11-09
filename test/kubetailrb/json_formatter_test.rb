@@ -9,7 +9,7 @@ module Kubetailrb
         @formatter = JsonFormatter.new
       end
 
-      it 'should format into a human readable log if given a json' do
+      it 'should format into a human readable log if given an application log in json format' do
         json = <<~JSON
           {
             "@timestamp": "2024-11-09T19:42:55.088Z",
@@ -20,7 +20,23 @@ module Kubetailrb
 
         actual = @formatter.format json
 
-        expected = '2024-11-09T19:42:55.088Z INFO Time is 2024-11-09T19:42:55.088Z'
+        expected = "2024-11-09T19:42:55.088Z \e[1;30;44m I \e[0m Time is 2024-11-09T19:42:55.088Z"
+        assert_equal expected, actual
+      end
+
+      it 'should format into a human readable log if given an access log in json format' do
+        json = <<~JSON
+          {
+            "@timestamp": "2024-11-09T19:42:55.088Z",
+            "http.response.status_code": 200,
+            "http.request.method": "GET",
+            "url.path": "/foobar"
+          }
+        JSON
+
+        actual = @formatter.format json
+
+        expected = "2024-11-09T19:42:55.088Z \e[1;30;44m200\e[0m GET /foobar"
         assert_equal expected, actual
       end
 

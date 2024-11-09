@@ -56,10 +56,10 @@ module Kubetailrb
     end
 
     def print_logs(logs)
-      if @opts.raw?
-        puts @formatter.format logs
-      elsif logs.to_s.include?("\n")
+      if logs.to_s.include?("\n")
         logs.to_s.split("\n").each { |log| print_logs(log) }
+      elsif @opts.raw?
+        puts @formatter.format(logs)
       else
         puts "#{@pod_name} - #{@formatter.format logs}"
       end
