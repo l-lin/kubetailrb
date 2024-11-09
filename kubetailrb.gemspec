@@ -43,11 +43,11 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  # Uncomment to register a new dependency of your gem
-  # spec.add_dependency 'example-gem', '~> 1.0'
+  # NOTE: Add dependencies here, instead of Gemfile.
+  spec.add_dependency 'kubeclient', '~> 4.12.0' # Ruby client for Kubernetes REST API.
 
   # NOTE: Add the following gems in the 'development' group by using `add_development_dependency` method.
-  spec.add_development_dependency 'aruba', '~> 2.2.0'             # Test command-line applications
+  spec.add_development_dependency 'aruba', '~> 2.2.0'             # Test command-line applications.
   spec.add_development_dependency 'cucumber', '~> 9.2.0'          # Tool for running tests in plain language.
   spec.add_development_dependency 'guard', '~> 2.19.0'            # Command-line tool to handle events on fs.
   spec.add_development_dependency 'guard-cucumber', '~> 3.0.0'    # Automatically runs your features.

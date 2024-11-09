@@ -15,7 +15,9 @@ module Kubetailrb
 
       return Cmd::Version.new if Cmd::Version.applicable?(*@args)
 
-      Cmd::File.create(*@args) if Cmd::File.applicable?(*@args)
+      return Cmd::File.create(*@args) if Cmd::File.applicable?(*@args)
+
+      Cmd::K8s.create(*@args)
     end
   end
 end

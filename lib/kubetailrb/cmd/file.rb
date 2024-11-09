@@ -12,7 +12,7 @@ module Kubetailrb
       TAIL_FLAG = '--tail'
       attr_reader :reader
 
-      def initialize(filepath:, last_nb_lines: 10, follow: false)
+      def initialize(filepath:, last_nb_lines: DEFAULT_NB_LINES, follow: DEFAULT_FOLLOW)
         @reader = Kubetailrb::FileReader.new(filepath: filepath, last_nb_lines: last_nb_lines, follow: follow)
       end
 
