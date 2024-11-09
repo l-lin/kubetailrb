@@ -67,17 +67,11 @@ module Kubetailrb
       read_last_nb_lines file
 
       if @follow
-        begin
-          loop do
-            if file_changed?(file)
-              update_stats(file)
-              print file.read
-            end
+        loop do
+          if file_changed?(file)
+            update_stats(file)
+            print file.read
           end
-        # Capture Ctrl+c so the program will not display an error in the
-        # terminal.
-        rescue SignalException
-          puts '' # No need to display anything.
         end
       end
     ensure

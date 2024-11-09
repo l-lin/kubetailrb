@@ -15,9 +15,13 @@ module Kubetailrb
       # or is it better to use a raise/rescue approach? Or another approach?
       raise 'Invalid cmd' unless cmd.respond_to?(:execute)
 
-      cmd.execute
-
-      # TODO: Implement graceful shutdown in case of error.
+      begin
+        cmd.execute
+      # Capture Ctrl+c so the program will not display an error in the
+      # terminal.
+      rescue SignalException
+        puts '' # No need to display anything.
+      end
     end
   end
 end

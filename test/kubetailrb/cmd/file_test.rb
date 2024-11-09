@@ -47,7 +47,7 @@ module Kubetailrb
           refute actual.reader.follow?
         end
 
-        it 'should return file command with custom last nb lines if given a filepath and a `--tail` and a `--follow` flags' do
+        it 'should return file command with custom last nb lines if given a filepath, `--tail` and `--follow` flags' do
           args = %w[test/test_helper.rb --tail 3 --follow]
 
           actual = File.create(*args)
