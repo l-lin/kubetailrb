@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+require_relative 'cmd/file'
+require_relative 'cmd/help'
+require_relative 'cmd/k8s'
+require_relative 'cmd/version'
+
 module Kubetailrb
   # Parse CLI arguments and flags.
   # NOTE: We could use the standard library optparse (OptionParser) or a more
