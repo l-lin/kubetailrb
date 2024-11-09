@@ -18,6 +18,7 @@ module Kubetailrb
             -h, --help     Display help.
                 --tail     The number of lines from the end of the logs to show. Defaults to 10.
             -f, --follow   Output appended data as the file grows.
+                --file     Display file content.
         HELP
       end
 

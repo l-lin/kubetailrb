@@ -13,6 +13,7 @@ Flags:
   -h, --help     Display help.
       --tail     The number of lines from the end of the logs to show. Defaults to 10.
   -f, --follow   Output appended data as the file grows.
+      --file     Display file content.
 """
 
   Scenario: No argument
@@ -29,6 +30,7 @@ Flags:
   -h, --help     Display help.
       --tail     The number of lines from the end of the logs to show. Defaults to 10.
   -f, --follow   Output appended data as the file grows.
+      --file     Display file content.
 """
 
   Scenario: Display version
