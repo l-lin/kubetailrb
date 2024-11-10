@@ -29,14 +29,7 @@ module Kubetailrb
       threads = pods.map do |pod|
         # NOTE: How much memory does a Ruby Thread takes? Can we spawn hundreds
         # to thoudsands of Threads without issue?
-        Thread.new do
-          K8sPodReader.new(
-            k8s_client: k8s_client,
-            pod_name: pod.metadata.name,
-            formatter: @formatter,
-            opts: @opts
-          ).read
-        end
+        Thread.new { create_reader(pod.metadata.name).read }
       end
       # NOTE: '&:' is a shorthand way of calling 'join' method on each thread.
       # It's equivalent to: threads.each { |thread| thread.join }
@@ -59,6 +52,15 @@ module Kubetailrb
         .select { |pod| applicable?(pod) }
     end
 
+    def create_reader(pod_name)
+      K8sPodReader.new(
+        k8s_client: k8s_client,
+        pod_name: pod_name,
+        formatter: @formatter,
+        opts: @opts
+      )
+    end
+
     #
     # Watch any pod events, and if there's another pod that validates the pod
     # query, then let's read the pod logs!
@@ -66,14 +68,9 @@ module Kubetailrb
     def watch_for_new_pod_events
       k8s_client.watch_pods(namespace: @opts.namespace) do |notice|
         if new_pod_event?(notice) && applicable?(notice.object)
-          Thread.new do
-            K8sPodReader.new(
-              k8s_client: k8s_client,
-              pod_name: notice.object.metadata.name,
-              formatter: @formatter,
-              opts: @opts
-            ).read
-          end
+          # NOTE: We are in another thread (are we?), so no sense to use
+          # 'Thread.join' here.
+          Thread.new { create_reader(notice.object.metadata.name).read }
         end
       end
     end

@@ -55,12 +55,11 @@ module Kubetailrb
       end
 
       it 'should display nothing if there is no pod found' do
-        stub_core_api_list
-        stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods")
-          .to_return(body: open_test_file('empty_pod_list.json'), status: 200)
-        stub_request(:get, "http://localhost:8080/api/v1/watch/namespaces/#{NAMESPACE}/pods")
-          .to_return(status: 200, body: '')
+        # GIVEN
+        given_empty_pod_list
+        given_no_new_pod_event
 
+        # WHEN
         reader = K8sPodsReader.new(
           k8s_client: @k8s_client,
           pod_query: POD_QUERY,
@@ -73,25 +72,18 @@ module Kubetailrb
           )
         )
 
+        # THEN
         assert_output('') { reader.read }
       end
 
       it 'should display only display filtered pod logs' do
-        stub_core_api_list
-        stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods")
-          .to_return(body: open_test_file('pod_list.json'), status: 200)
+        # GIVEN
+        pod_name = 'some-pod'
+        given_pod_list_found
+        given_pod_logs pod_name
+        given_no_new_pod_event
 
-        pod_logs = <<~PODLOGS
-          some pod log 1
-          some pod log 2
-          some pod log 3
-        PODLOGS
-        stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods/some-pod/log?tailLines=3")
-          .to_return(status: 200, body: pod_logs)
-
-        stub_request(:get, "http://localhost:8080/api/v1/watch/namespaces/#{NAMESPACE}/pods")
-          .to_return(status: 200, body: '')
-
+        # WHEN
         reader = K8sPodsReader.new(
           k8s_client: @k8s_client,
           pod_query: POD_QUERY,
@@ -104,38 +96,20 @@ module Kubetailrb
           )
         )
 
-        expected = <<~EXPECTED
-          some-pod - some pod log 1
-          some-pod - some pod log 2
-          some-pod - some pod log 3
-        EXPECTED
-        assert_output(expected) { reader.read }
+        # THEN
+        then_prefix_pod_name_to_pod_logs reader, pod_name
       end
 
       it 'should display display all pod logs if pod query is .' do
-        stub_core_api_list
-        stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods")
-          .to_return(body: open_test_file('pod_list.json'), status: 200)
+        # GIVEN
+        given_pod_list_found
+        pod_name1 = 'redis-master'
+        given_pod_logs pod_name1
+        pod_name2 = 'some-pod'
+        given_pod_logs pod_name2
+        given_no_new_pod_event
 
-        redis_logs = <<~REDISLOG
-          redis log 1
-          redis log 2
-          redis log 3
-        REDISLOG
-        stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods/redis-master/log?tailLines=3")
-          .to_return(status: 200, body: redis_logs)
-
-        some_pod_logs = <<~SOMEPOD
-          some pod log 1
-          some pod log 2
-          some pod log 3
-        SOMEPOD
-        stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods/some-pod/log?tailLines=3")
-          .to_return(status: 200, body: some_pod_logs)
-
-        stub_request(:get, "http://localhost:8080/api/v1/watch/namespaces/#{NAMESPACE}/pods")
-          .to_return(status: 200, body: '')
-
+        # WHEN
         reader = K8sPodsReader.new(
           k8s_client: @k8s_client,
           pod_query: '.',
@@ -148,33 +122,18 @@ module Kubetailrb
           )
         )
 
-        expected = <<~EXPECTED
-          redis-master - redis log 1
-          redis-master - redis log 2
-          redis-master - redis log 3
-          some-pod - some pod log 1
-          some-pod - some pod log 2
-          some-pod - some pod log 3
-        EXPECTED
-        assert_output(expected) { reader.read }
+        # THEN
+        then_prefix_pod_name_to_multiple_pod_logs reader, pod_name1, pod_name2
       end
 
       it 'should display not display pod name if raw property is set to true' do
-        stub_core_api_list
-        stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods")
-          .to_return(body: open_test_file('pod_list.json'), status: 200)
+        # GIVEN
+        given_pod_list_found
+        pod_name = 'some-pod'
+        given_pod_logs pod_name
+        given_no_new_pod_event
 
-        pod_logs = <<~PODLOGS
-          some pod log 1
-          some pod log 2
-          some pod log 3
-        PODLOGS
-        stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods/some-pod/log?tailLines=3")
-          .to_return(status: 200, body: pod_logs)
-
-        stub_request(:get, "http://localhost:8080/api/v1/watch/namespaces/#{NAMESPACE}/pods")
-          .to_return(status: 200, body: '')
-
+        # WHEN
         reader = K8sPodsReader.new(
           k8s_client: @k8s_client,
           pod_query: POD_QUERY,
@@ -187,15 +146,111 @@ module Kubetailrb
           )
         )
 
+        # THEN
+        then_no_prefix_to_pod_logs reader, pod_name
+      end
+
+      it 'should display new pod logs once they are available' do
+        # GIVEN
+        given_pod_list_found
+        pod_name = 'some-pod'
+        given_pod_logs pod_name
+        given_new_pod_events
+        new_pod_name = 'php'
+        given_pod_logs new_pod_name
+
+        # WHEN
+        reader = K8sPodsReader.new(
+          k8s_client: @k8s_client,
+          pod_query: POD_QUERY,
+          formatter: NoOpFormatter.new,
+          opts: K8sOpts.new(
+            namespace: NAMESPACE,
+            last_nb_lines: 3,
+            follow: false,
+            raw: true
+          )
+        )
+
+        # THEN
+        # FIXME: The new pod logs are produced from another thread... How to test it?
+        # then_no_prefix_to_pod_logs_with_new_pod reader, pod_name, new_pod_name
+        then_no_prefix_to_pod_logs reader, pod_name
+      end
+
+      def given_empty_pod_list
+        stub_core_api_list
+        stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods")
+          .to_return(body: open_test_file('empty_pod_list.json'), status: 200)
+      end
+
+      def given_pod_list_found
+        stub_core_api_list
+        stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods")
+          .to_return(body: open_test_file('pod_list.json'), status: 200)
+      end
+
+      def given_no_new_pod_event
+        stub_request(:get, "http://localhost:8080/api/v1/watch/namespaces/#{NAMESPACE}/pods")
+          .to_return(status: 200, body: '')
+      end
+
+      def given_new_pod_events
+        stub_request(:get, "http://localhost:8080/api/v1/watch/namespaces/#{NAMESPACE}/pods")
+          .to_return(body: open_test_file('watch_stream.json'), status: 200)
+      end
+
+      def given_pod_logs(pod_name)
+        pod_logs = <<~PODLOGS
+          log 1 from #{pod_name}
+          log 2 from #{pod_name}
+          log 3 from #{pod_name}
+        PODLOGS
+        stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods/#{pod_name}/log?tailLines=3")
+          .to_return(status: 200, body: pod_logs)
+      end
+
+      def then_prefix_pod_name_to_pod_logs(reader, pod_name)
         expected = <<~EXPECTED
-          some pod log 1
-          some pod log 2
-          some pod log 3
+          #{pod_name} - log 1 from #{pod_name}
+          #{pod_name} - log 2 from #{pod_name}
+          #{pod_name} - log 3 from #{pod_name}
         EXPECTED
         assert_output(expected) { reader.read }
       end
 
-      # TODO: Add tests when adding new pod.
+      def then_prefix_pod_name_to_multiple_pod_logs(reader, pod_name1, pod_name2)
+        expected = <<~EXPECTED
+          #{pod_name1} - log 1 from #{pod_name1}
+          #{pod_name1} - log 2 from #{pod_name1}
+          #{pod_name1} - log 3 from #{pod_name1}
+          #{pod_name2} - log 1 from #{pod_name2}
+          #{pod_name2} - log 2 from #{pod_name2}
+          #{pod_name2} - log 3 from #{pod_name2}
+        EXPECTED
+        assert_output(expected) { reader.read }
+      end
+
+      def then_no_prefix_to_pod_logs(reader, pod_name)
+        expected = <<~EXPECTED
+          log 1 from #{pod_name}
+          log 2 from #{pod_name}
+          log 3 from #{pod_name}
+        EXPECTED
+        assert_output(expected) { reader.read }
+      end
+
+      def then_no_prefix_to_pod_logs_with_new_pod(reader, pod_name, new_pod_name)
+        expected = <<~EXPECTED
+          log 1 from #{pod_name}
+          log 2 from #{pod_name}
+          log 3 from #{pod_name}
+          log 1 from #{new_pod_name}
+          log 2 from #{new_pod_name}
+          log 3 from #{new_pod_name}
+        EXPECTED
+        assert_output(expected) { reader.read }
+      end
     end
   end
 end
