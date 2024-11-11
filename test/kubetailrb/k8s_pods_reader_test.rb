@@ -156,7 +156,7 @@ module Kubetailrb
         pod_name = 'some-pod'
         given_pod_logs pod_name
         given_new_pod_events
-        new_pod_name = 'php'
+        new_pod_name = 'some-other-pod'
         given_pod_logs new_pod_name
 
         # WHEN
@@ -173,9 +173,7 @@ module Kubetailrb
         )
 
         # THEN
-        # FIXME: The new pod logs are produced from another thread... How to test it?
-        # then_no_prefix_to_pod_logs_with_new_pod reader, pod_name, new_pod_name
-        then_no_prefix_to_pod_logs reader, pod_name
+        then_no_prefix_to_pod_logs_with_new_pod reader, pod_name, new_pod_name
       end
 
       def given_empty_pod_list
@@ -241,13 +239,20 @@ module Kubetailrb
       end
 
       def then_no_prefix_to_pod_logs_with_new_pod(reader, pod_name, new_pod_name)
+        # The watch operation is performed before reading the pod logs.
+        # Since I cannot simulate a delay before the the stubbed k8s API server
+        # returns the right streams (otherwise, we will introduce a flaky test...
+        # and we hate flaky tests, aren't we?), we will first get the logs from
+        # the new pod instead of existing pod in the tests.
+        # In practice, new pods are created afterwards, so their logs are
+        # displayed afterwards/
         expected = <<~EXPECTED
-          log 1 from #{pod_name}
-          log 2 from #{pod_name}
-          log 3 from #{pod_name}
           log 1 from #{new_pod_name}
           log 2 from #{new_pod_name}
           log 3 from #{new_pod_name}
+          log 1 from #{pod_name}
+          log 2 from #{pod_name}
+          log 3 from #{pod_name}
         EXPECTED
         assert_output(expected) { reader.read }
       end

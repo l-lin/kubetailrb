@@ -23,7 +23,6 @@ module Kubetailrb
 
     def read
       pods = find_pods
-
       watch_for_new_pod_events
 
       threads = pods.map do |pod|
@@ -31,6 +30,7 @@ module Kubetailrb
         # to thoudsands of Threads without issue?
         Thread.new { create_reader(pod.metadata.name).read }
       end
+
       # NOTE: '&:' is a shorthand way of calling 'join' method on each thread.
       # It's equivalent to: threads.each { |thread| thread.join }
       threads.each(&:join)
