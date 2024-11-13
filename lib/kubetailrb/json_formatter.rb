@@ -30,9 +30,9 @@ module Kubetailrb
     def http_status_code(json)
       code = json['http.response.status_code']
 
-      return blue(code) if code >= 200 && code < 400
-      return yellow(code) if code >= 400 && code < 500
-      return red(code) if code > 500
+      return "#{blue(" I ")}[#{code}] " if code >= 200 && code < 400
+      return "#{yellow(" W ")}[#{code}] " if code >= 400 && code < 500
+      return "#{red(" E ")}[#{code}] " if code > 500
 
       " #{code} "
     end

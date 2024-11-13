@@ -36,7 +36,7 @@ module Kubetailrb
 
         actual = @formatter.format json
 
-        expected = "2024-11-09T19:42:55.088Z \e[1;30;44m200\e[0m GET /foobar"
+        expected = "2024-11-09T19:42:55.088Z \e[1;30;44m I \e[0m [200] GET /foobar"
         assert_equal expected, actual
       end
 
