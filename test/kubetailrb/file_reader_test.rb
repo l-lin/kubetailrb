@@ -18,7 +18,7 @@ module Kubetailrb
 
       it 'should raise an error if the last nb lines is invalid' do
         given_invalid_last_nb_lines.each do |invalid_last_nb_lines|
-          actual = assert_raises(InvalidArgumentError) do
+          actual = assert_raises(ArgumentError) do
             FileReader.new(filepath: EXISTING_FILE, last_nb_lines: invalid_last_nb_lines, follow: false)
           end
 
@@ -28,7 +28,7 @@ module Kubetailrb
 
       it 'should raise an error if follow is invalid' do
         given_invalid_follow.each do |follow|
-          actual = assert_raises(InvalidArgumentError) do
+          actual = assert_raises(ArgumentError) do
             FileReader.new(filepath: EXISTING_FILE, last_nb_lines: 10, follow: follow)
           end
 

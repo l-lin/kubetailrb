@@ -10,7 +10,7 @@ module Kubetailrb
     describe '.new' do
       it 'should raise an error if the pod query is not set' do
         given_invalid_string.each do |invalid_pod_query|
-          actual = assert_raises(InvalidArgumentError) do
+          actual = assert_raises(ArgumentError) do
             K8sPodsReader.new(
               pod_query: invalid_pod_query,
               formatter: NoOpFormatter.new,
@@ -28,7 +28,7 @@ module Kubetailrb
       end
 
       it 'should raise an error if the formatter is not set' do
-        actual = assert_raises(InvalidArgumentError) do
+        actual = assert_raises(ArgumentError) do
           K8sPodsReader.new(
             pod_query: POD_QUERY,
             formatter: nil,

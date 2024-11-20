@@ -10,7 +10,7 @@ module Kubetailrb
     describe '.new' do
       it 'should raise an error if the pod name is not set' do
         given_invalid_string.each do |invalid_pod_name|
-          actual = assert_raises(InvalidArgumentError) do
+          actual = assert_raises(ArgumentError) do
             K8sPodReader.new(
               pod_name: invalid_pod_name,
               formatter: NoOpFormatter.new,
@@ -28,7 +28,7 @@ module Kubetailrb
       end
 
       it 'should raise an error if the opts is not set' do
-        actual = assert_raises(InvalidArgumentError) do
+        actual = assert_raises(ArgumentError) do
           K8sPodReader.new(
             pod_name: POD_NAME,
             formatter: NoOpFormatter.new,
@@ -40,7 +40,7 @@ module Kubetailrb
       end
 
       it 'should raise an error if the formatter is not set' do
-        actual = assert_raises(InvalidArgumentError) do
+        actual = assert_raises(ArgumentError) do
           K8sPodReader.new(
             pod_name: POD_NAME,
             formatter: nil,

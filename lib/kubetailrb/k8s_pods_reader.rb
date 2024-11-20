@@ -41,9 +41,9 @@ module Kubetailrb
     def validate(pod_query, formatter, opts)
       raise_if_blank pod_query, 'Pod query not set.'
 
-      raise InvalidArgumentError, 'Formatter not set.' if formatter.nil?
+      raise ArgumentError, 'Formatter not set.' if formatter.nil?
 
-      raise InvalidArgumentError, 'Opts not set.' if opts.nil?
+      raise ArgumentError, 'Opts not set.' if opts.nil?
     end
 
     def find_pods

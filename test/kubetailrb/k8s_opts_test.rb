@@ -9,7 +9,7 @@ module Kubetailrb
     describe '.new' do
       it 'should raise an error if the namespace is not set' do
         given_invalid_string.each do |invalid_namespace|
-          actual = assert_raises(InvalidArgumentError) do
+          actual = assert_raises(ArgumentError) do
             K8sOpts.new(
               namespace: invalid_namespace,
               last_nb_lines: 10,
@@ -24,7 +24,7 @@ module Kubetailrb
 
       it 'should raise an error if the last nb lines is invalid' do
         given_invalid_last_nb_lines.each do |invalid_last_nb_lines|
-          actual = assert_raises(InvalidArgumentError) do
+          actual = assert_raises(ArgumentError) do
             K8sOpts.new(
               namespace: NAMESPACE,
               last_nb_lines: invalid_last_nb_lines,
@@ -39,7 +39,7 @@ module Kubetailrb
 
       it 'should raise an error if follow is invalid' do
         given_invalid_boolean.each do |follow|
-          actual = assert_raises(InvalidArgumentError) do
+          actual = assert_raises(ArgumentError) do
             K8sOpts.new(
               namespace: NAMESPACE,
               last_nb_lines: 10,
@@ -54,7 +54,7 @@ module Kubetailrb
 
       it 'should raise an error if raw is invalid' do
         given_invalid_boolean.each do |invalid_raw|
-          actual = assert_raises(InvalidArgumentError) do
+          actual = assert_raises(ArgumentError) do
             K8sOpts.new(
               namespace: NAMESPACE,
               last_nb_lines: 10,
