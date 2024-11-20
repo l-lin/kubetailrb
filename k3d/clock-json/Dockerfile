@@ -1,5 +1,5 @@
-FROM debian:trixie-slim
+FROM ruby:alpine3.20
 
-COPY clock-json.sh /
+COPY clock_json.rb /
 
-CMD [ "/clock-json.sh" ]
+CMD [ "ruby", "/clock_json.rb" ]

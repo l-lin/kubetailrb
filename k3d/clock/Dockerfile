@@ -1,11 +1,5 @@
-# FROM ruby:alpine3.20
-#
-# COPY clock.rb /
-#
-# CMD [ "ruby", "/clock.rb" ]
+FROM ruby:alpine3.20
 
-FROM debian:trixie-slim
+COPY clock.rb /
 
-COPY clock.sh /
-
-CMD [ "/clock.sh" ]
+CMD [ "ruby", "/clock.rb" ]
