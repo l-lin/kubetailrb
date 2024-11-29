@@ -1,7 +1,7 @@
 # Kubetailrb
 
 [![License](http://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://github.com/HazAT/badge/blob/master/LICENSE)
-[![Gem](https://img.shields.io/gem/v/badge.svg?style=flat)](http://rubygems.org/gems/kubetailrb)
+[![Gem](https://img.shields.io/gem/v/kubetailrb?style=flat)](http://rubygems.org/gems/kubetailrb)
 
 > Tail your Kubernetes pod logs at the same time.
 
@@ -80,7 +80,9 @@ bundle exec rake
 Update the version in
 [`lib/kubetailrb/version.rb`](./lib/kubetailrb/version.rb).
 
-> [!NOTE] You may have to update the tests...
+> [!WARNING]
+> You may have to update the tests...
+> Too lazy to update the script to also update the tests...
 
 Then execute the script:
 
