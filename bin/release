@@ -1,0 +1,30 @@
+#!/bin/bash
+#
+# Release gem by:
+# - creating a new git tag
+# - building 
+#
+
+set -euo pipefail
+
+project_name=kubetailrb
+
+fields=( $(gem build *.gemspec | grep '\(Version\|File\):' | awk '{print $2}') )
+version="${fields[0]}"
+gem="${fields[1]}"
+[ -n "$version" ] || exit 1
+
+# Ensure the built gem file is deleted when the script finishes.
+trap "rm -f '${gem}'" EXIT
+
+echo "Releasing gem ${project_name} in version ${version}"
+
+if ! git rev-parse --verify --quiet "refs/tags/v${version}" >/dev/null; then
+  git commit -m "${project_name} $version" -- exe/${project_name}
+  git tag "v${version}"
+fi
+
+git push origin HEAD "v${version}"
+gem push "${gem}"
+
+gh release create "v${version}" --title "${project_name} ${version}" --generate-notes
