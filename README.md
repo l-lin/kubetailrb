@@ -1,7 +1,5 @@
 # Kubetailrb
 
-:construction: WIP.
-
 > Tail your Kubernetes pod logs at the same time.
 
 > [!NOTE]
@@ -18,29 +16,38 @@
 
 ## Installation
 
-Add the gem to your `Gemfile`:
+```sh
+# Install dependencies.
+./bin/setup
 
-```ruby
-gem 'kubetailrb', github: 'l-lin/kubetailrb'
+# Install gem onto your local machine
+bundle exec rake install
 ```
 
 ## Usage
 
 ```bash
+# show help
 kubetailrb -h
+
+# follow pod logs
+kubetailrb 'clock' --namespace sandbox
+
+# follow pod structured JSON logs and display in human friendly way
+kubetailrb 'clock-json' --namespace sandbox --pretty --raw --follow
+# or with shorter flags
+kubetailrb 'clock-json' -n sandbox -p -r -f
+
+# you can filter the pods using regex on the pod names
+kubetailrb '^clock(?!-json)' -n sandbox -p -r
+
 ```
 
 ## Development
 
 ```bash
-# Install dependencies.
-./bin/setup
-
 # Open interactive prompt to allow you to experiment.
 ./bin/console
-
-# Install gem onto your local machine
-bundle exec rake install
 
 # Release new version
 NEW_VERSION=1.0.1 \
