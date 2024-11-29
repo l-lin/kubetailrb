@@ -14,6 +14,8 @@
 > - https://github.com/stern/stern
 > - https://github.com/johanhaleby/kubetail
 
+![kubetailrb](./kubetailrb.png)
+
 ## Installation
 
 Add the gem to your `Gemfile`:
