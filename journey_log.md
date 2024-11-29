@@ -4,12 +4,6 @@
 > tribulations, and triumphs as I navigated the world of this dynamic
 > programming language.
 
-
-## 🤔 Things that I'm curious about
-
-
----
-
 ## 2024-10-27
 ### Context
 
@@ -90,7 +84,7 @@ It seems the convention is:
 - `features` contains the cucumber scenarios, i.e. integration tests.
 - `bin/` contains some scripts that can help the developer experience,
   - Rails projects also have scripts in this `bin/` directory.
-- `exec/` contains the executables that will be installed to the user system if
+- `exe/` contains the executables that will be installed to the user system if
   the latter is installing the gem
   - It seems to be a convention from Bundler, but that is configurable in the
   `gemspec` file.
