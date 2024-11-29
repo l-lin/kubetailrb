@@ -23,7 +23,7 @@ module Kubetailrb
 
     def read
       pods = find_pods
-      watch_for_new_pod_events
+      watch_for_new_pod_events if @opts.follow?
 
       threads = pods.map do |pod|
         # NOTE: How much memory does a Ruby Thread takes? Can we spawn hundreds
