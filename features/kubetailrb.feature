@@ -9,13 +9,14 @@ Usage:
   kubetailrb pod-query [flags]
 
 Flags:
-  -v, --version  Display version.
-  -h, --help     Display help.
-      --tail     The number of lines from the end of the logs to show. Defaults to 10.
-  -f, --follow   Output appended data as the file grows.
-      --file     Display file content.
-  -p, --pretty   Pretty print JSON logs.
-  -r, --raw      Only display pod logs.
+  -v, --version   Display version.
+  -h, --help      Display help.
+      --tail      The number of lines from the end of the logs to show. Defaults to 10.
+  -f, --follow    Output appended data as the file grows.
+      --file      Display file content.
+  -p, --pretty    Pretty print JSON logs.
+  -r, --raw       Only display pod logs.
+  -n, --namespace Kubernetes namespace to use.
 """
 
   Scenario: No argument
@@ -28,13 +29,14 @@ Usage:
   kubetailrb pod-query [flags]
 
 Flags:
-  -v, --version  Display version.
-  -h, --help     Display help.
-      --tail     The number of lines from the end of the logs to show. Defaults to 10.
-  -f, --follow   Output appended data as the file grows.
-      --file     Display file content.
-  -p, --pretty   Pretty print JSON logs.
-  -r, --raw      Only display pod logs.
+  -v, --version   Display version.
+  -h, --help      Display help.
+      --tail      The number of lines from the end of the logs to show. Defaults to 10.
+  -f, --follow    Output appended data as the file grows.
+      --file      Display file content.
+  -p, --pretty    Pretty print JSON logs.
+  -r, --raw       Only display pod logs.
+  -n, --namespace Kubernetes namespace to use.
 """
 
   Scenario: Display version
