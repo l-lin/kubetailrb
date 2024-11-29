@@ -20,11 +20,10 @@ trap "rm -f '${gem}'" EXIT
 echo "Releasing gem ${project_name} in version ${version}"
 
 if ! git rev-parse --verify --quiet "refs/tags/v${version}" >/dev/null; then
-  git commit -m "${project_name} $version" -- exe/${project_name}
   git tag "v${version}"
+  git push --tags
 fi
 
-git push origin HEAD "v${version}"
 gem push "${gem}"
 
 gh release create "v${version}" --title "${project_name} ${version}" --generate-notes
