@@ -155,9 +155,11 @@ module Kubetailrb
         given_pod_list_found
         pod_name = 'some-pod'
         given_pod_logs pod_name
+        given_pod_logs_from_watch pod_name
         given_new_pod_events
         new_pod_name = 'some-other-pod'
         given_pod_logs new_pod_name
+        given_pod_logs_from_watch new_pod_name
 
         # WHEN
         reader = K8sPodsReader.new(
@@ -167,7 +169,7 @@ module Kubetailrb
           opts: K8sOpts.new(
             namespace: NAMESPACE,
             last_nb_lines: 3,
-            follow: false,
+            follow: true,
             raw: true
           )
         )
@@ -205,6 +207,16 @@ module Kubetailrb
           log 3 from #{pod_name}
         PODLOGS
         stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods/#{pod_name}/log?tailLines=3")
+          .to_return(status: 200, body: pod_logs)
+      end
+
+      def given_pod_logs_from_watch(pod_name)
+        pod_logs = <<~PODLOGS
+          log 1 from #{pod_name}
+          log 2 from #{pod_name}
+          log 3 from #{pod_name}
+        PODLOGS
+        stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods/#{pod_name}/log?follow=true")
           .to_return(status: 200, body: pod_logs)
       end
 
