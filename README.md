@@ -1,5 +1,8 @@
 # Kubetailrb
 
+[![License](http://img.shields.io/badge/license-MIT-green.svg?style=flat)](https://github.com/HazAT/badge/blob/master/LICENSE)
+[![Gem](https://img.shields.io/gem/v/badge.svg?style=flat)](http://rubygems.org/gems/kubetailrb)
+
 > Tail your Kubernetes pod logs at the same time.
 
 > [!NOTE]
@@ -15,6 +18,12 @@
 ![kubetailrb](./kubetailrb.png)
 
 ## Installation
+
+```sh
+gem install kubetailrb
+```
+
+If you want to install directly from the repository instead:
 
 ```sh
 # Install dependencies.
@@ -62,6 +71,21 @@ bundle exec rake test:watch
 
 # Run tests, cucumber features and lint.
 bundle exec rake
+
+# To release a new version:
+```
+
+## Release a new version
+
+Update the version in
+[`lib/kubetailrb/version.rb`](./lib/kubetailrb/version.rb).
+
+> [!NOTE] You may have to update the tests...
+
+Then execute the script:
+
+```sh
+./bin/release
 ```
 
 ## Contributing
