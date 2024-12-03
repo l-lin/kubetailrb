@@ -3,6 +3,7 @@
 require 'kubetailrb/validated'
 require 'kubetailrb/formatter/json_formatter'
 require 'kubetailrb/formatter/no_op_formatter'
+require 'kubetailrb/formatter/pod_metadata_formatter'
 require_relative 'with_k8s_client'
 
 module Kubetailrb
@@ -14,13 +15,21 @@ module Kubetailrb
 
       attr_reader :pod_name, :opts
 
-      def initialize(pod_name:, container_name:, formatter:, opts:, k8s_client: nil)
-        validate(pod_name, container_name, formatter, opts)
+      def initialize(pod_name:, container_name:, opts:, k8s_client: nil)
+        validate(pod_name, container_name, opts)
 
         @k8s_client = k8s_client
         @pod_name = pod_name
         @container_name = container_name
-        @formatter = formatter
+        @formatter = if opts.raw?
+                       Kubetailrb::Formatter::NoOpFormatter.new
+                     else
+                       Kubetailrb::Formatter::PodMetadataFormatter.new(
+                         pod_name,
+                         container_name,
+                         Kubetailrb::Formatter::JsonFormatter.new
+                       )
+                     end
         @opts = opts
       end
 
@@ -50,13 +59,10 @@ module Kubetailrb
 
       private
 
-      def validate(pod_name, container_name, formatter, opts)
+      def validate(pod_name, container_name, opts)
         raise_if_blank pod_name, 'Pod name not set.'
         raise_if_blank container_name, 'Container name not set.'
-
-        raise ArgumentError, 'Formatter not set.' if formatter.nil?
-
-        raise ArgumentError, 'Opts not set.' if opts.nil?
+        raise_if_nil opts, 'Opts not set.'
       end
 
       def print_logs(logs)
@@ -65,11 +71,7 @@ module Kubetailrb
           return
         end
 
-        if @opts.raw?
-          puts @formatter.format(logs)
-        else
-          puts "#{@pod_name} #{@container_name} - #{@formatter.format logs}"
-        end
+        puts @formatter.format(logs)
         $stdout.flush
       end
 

@@ -7,6 +7,10 @@ module Kubetailrb
       raise ArgumentError, error_message if arg.nil? || arg.strip&.empty?
     end
 
+    def raise_if_nil(arg, error_message)
+      raise ArgumentError, error_message if arg.nil?
+    end
+
     def validate_last_nb_lines(last_nb_lines)
       last_nb_lines_valid = last_nb_lines.is_a?(Integer) && last_nb_lines.positive?
       raise ArgumentError, "Invalid last_nb_lines: #{last_nb_lines}." unless last_nb_lines_valid

@@ -14,7 +14,6 @@ module Kubetailrb
             actual = assert_raises(ArgumentError) do
               K8sPodsReader.new(
                 pod_query: invalid_pod_query,
-                formatter: Formatter::NoOpFormatter.new,
                 opts: K8sOpts.new(
                   namespace: NAMESPACE,
                   last_nb_lines: 10,
@@ -26,23 +25,6 @@ module Kubetailrb
 
             assert_equal 'Pod query not set.', actual.message
           end
-        end
-
-        it 'should raise an error if the formatter is not set' do
-          actual = assert_raises(ArgumentError) do
-            K8sPodsReader.new(
-              pod_query: POD_QUERY,
-              formatter: nil,
-              opts: K8sOpts.new(
-                namespace: NAMESPACE,
-                last_nb_lines: 3,
-                follow: false,
-                raw: false
-              )
-            )
-          end
-
-          assert_equal 'Formatter not set.', actual.message
         end
 
         def given_invalid_string
@@ -64,7 +46,6 @@ module Kubetailrb
           reader = K8sPodsReader.new(
             k8s_client: @k8s_client,
             pod_query: POD_QUERY,
-            formatter: Formatter::NoOpFormatter.new,
             opts: K8sOpts.new(
               namespace: NAMESPACE,
               last_nb_lines: 3,
@@ -89,7 +70,6 @@ module Kubetailrb
           reader = K8sPodsReader.new(
             k8s_client: @k8s_client,
             pod_query: POD_QUERY,
-            formatter: Formatter::NoOpFormatter.new,
             opts: K8sOpts.new(
               namespace: NAMESPACE,
               last_nb_lines: 3,
@@ -117,7 +97,6 @@ module Kubetailrb
           reader = K8sPodsReader.new(
             k8s_client: @k8s_client,
             pod_query: '.',
-            formatter: Formatter::NoOpFormatter.new,
             opts: K8sOpts.new(
               namespace: NAMESPACE,
               last_nb_lines: 3,
@@ -142,7 +121,6 @@ module Kubetailrb
           reader = K8sPodsReader.new(
             k8s_client: @k8s_client,
             pod_query: POD_QUERY,
-            formatter: Formatter::NoOpFormatter.new,
             opts: K8sOpts.new(
               namespace: NAMESPACE,
               last_nb_lines: 3,
@@ -172,7 +150,6 @@ module Kubetailrb
           reader = K8sPodsReader.new(
             k8s_client: @k8s_client,
             pod_query: POD_QUERY,
-            formatter: Formatter::NoOpFormatter.new,
             opts: K8sOpts.new(
               namespace: NAMESPACE,
               last_nb_lines: 3,
@@ -229,21 +206,21 @@ module Kubetailrb
 
         def then_prefix_pod_name_to_pod_logs(reader, pod_name, container_name)
           expected = <<~EXPECTED
-            #{pod_name} #{container_name} - log 1 from #{pod_name}
-            #{pod_name} #{container_name} - log 2 from #{pod_name}
-            #{pod_name} #{container_name} - log 3 from #{pod_name}
+            #{pod_name}/#{container_name} | log 1 from #{pod_name}
+            #{pod_name}/#{container_name} | log 2 from #{pod_name}
+            #{pod_name}/#{container_name} | log 3 from #{pod_name}
           EXPECTED
           assert_output(expected) { reader.read }
         end
 
         def then_prefix_pod_name_to_multiple_pod_logs(reader, pod_name1, container_name1, pod_name2, container_name2)
           expected = <<~EXPECTED
-            #{pod_name1} #{container_name1} - log 1 from #{pod_name1}
-            #{pod_name1} #{container_name1} - log 2 from #{pod_name1}
-            #{pod_name1} #{container_name1} - log 3 from #{pod_name1}
-            #{pod_name2} #{container_name2} - log 1 from #{pod_name2}
-            #{pod_name2} #{container_name2} - log 2 from #{pod_name2}
-            #{pod_name2} #{container_name2} - log 3 from #{pod_name2}
+            #{pod_name1}/#{container_name1} | log 1 from #{pod_name1}
+            #{pod_name1}/#{container_name1} | log 2 from #{pod_name1}
+            #{pod_name1}/#{container_name1} | log 3 from #{pod_name1}
+            #{pod_name2}/#{container_name2} | log 1 from #{pod_name2}
+            #{pod_name2}/#{container_name2} | log 2 from #{pod_name2}
+            #{pod_name2}/#{container_name2} | log 3 from #{pod_name2}
           EXPECTED
           assert_output(expected) { reader.read }
         end

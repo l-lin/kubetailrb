@@ -16,7 +16,6 @@ module Kubetailrb
               K8sPodReader.new(
                 pod_name: invalid_pod_name,
                 container_name: CONTAINER_NAME,
-                formatter: Formatter::NoOpFormatter.new,
                 opts: K8sOpts.new(
                   namespace: NAMESPACE,
                   last_nb_lines: 3,
@@ -36,7 +35,6 @@ module Kubetailrb
               K8sPodReader.new(
                 pod_name: POD_NAME,
                 container_name: invalid_container_name,
-                formatter: Formatter::NoOpFormatter.new,
                 opts: K8sOpts.new(
                   namespace: NAMESPACE,
                   last_nb_lines: 3,
@@ -55,7 +53,6 @@ module Kubetailrb
             K8sPodReader.new(
               pod_name: POD_NAME,
               container_name: CONTAINER_NAME,
-              formatter: Formatter::NoOpFormatter.new,
               opts: nil
             )
           end
@@ -63,23 +60,7 @@ module Kubetailrb
           assert_equal 'Opts not set.', actual.message
         end
 
-        it 'should raise an error if the formatter is not set' do
-          actual = assert_raises(ArgumentError) do
-            K8sPodReader.new(
-              pod_name: POD_NAME,
-              container_name: CONTAINER_NAME,
-              formatter: nil,
-              opts: K8sOpts.new(
-                namespace: NAMESPACE,
-                last_nb_lines: 3,
-                follow: false,
-                raw: false
-              )
-            )
-          end
-
-          assert_equal 'Formatter not set.', actual.message
-        end
+        # TODO: check formatter type
 
         def given_invalid_string
           [nil, '', '   ']
@@ -96,7 +77,6 @@ module Kubetailrb
             k8s_client: @k8s_client,
             pod_name: POD_NAME,
             container_name: CONTAINER_NAME,
-            formatter: Formatter::NoOpFormatter.new,
             opts: K8sOpts.new(
               namespace: NAMESPACE,
               last_nb_lines: 3,
@@ -107,9 +87,9 @@ module Kubetailrb
           given_pod_logs
 
           expected = <<~EXPECTED
-            some-pod some-container - log 1
-            some-pod some-container - log 2
-            some-pod some-container - log 3
+            some-pod/some-container | log 1
+            some-pod/some-container | log 2
+            some-pod/some-container | log 3
           EXPECTED
           assert_output(expected) { reader.read }
         end
@@ -119,7 +99,6 @@ module Kubetailrb
             k8s_client: @k8s_client,
             pod_name: POD_NAME,
             container_name: CONTAINER_NAME,
-            formatter: Formatter::NoOpFormatter.new,
             opts: K8sOpts.new(
               namespace: NAMESPACE,
               last_nb_lines: 3,
@@ -137,7 +116,6 @@ module Kubetailrb
             k8s_client: @k8s_client,
             pod_name: POD_NAME,
             container_name: CONTAINER_NAME,
-            formatter: Formatter::NoOpFormatter.new,
             opts: K8sOpts.new(
               namespace: NAMESPACE,
               last_nb_lines: 3,
@@ -159,9 +137,9 @@ module Kubetailrb
             .to_return(status: 200, body: logs_from_watch)
 
           expected = <<~EXPECTED
-            some-pod some-container - log 1
-            some-pod some-container - log 2
-            some-pod some-container - log 3
+            some-pod/some-container | log 1
+            some-pod/some-container | log 2
+            some-pod/some-container | log 3
           EXPECTED
           assert_output(expected) { reader.read }
         end

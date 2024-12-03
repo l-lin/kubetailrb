@@ -14,12 +14,11 @@ module Kubetailrb
 
       attr_reader :pod_query, :opts
 
-      def initialize(pod_query:, formatter:, opts:, k8s_client: nil)
-        validate(pod_query, formatter, opts)
+      def initialize(pod_query:, opts:, k8s_client: nil)
+        validate(pod_query, opts)
 
         @k8s_client = k8s_client
         @pod_query = Regexp.new(pod_query)
-        @formatter = formatter
         @opts = opts
       end
 
@@ -42,12 +41,9 @@ module Kubetailrb
 
       private
 
-      def validate(pod_query, formatter, opts)
+      def validate(pod_query, opts)
         raise_if_blank pod_query, 'Pod query not set.'
-
-        raise ArgumentError, 'Formatter not set.' if formatter.nil?
-
-        raise ArgumentError, 'Opts not set.' if opts.nil?
+        raise_if_nil opts, 'Opts not set.'
       end
 
       def find_pods
@@ -61,7 +57,6 @@ module Kubetailrb
           k8s_client: k8s_client,
           pod_name: pod_name,
           container_name: container_name,
-          formatter: @formatter,
           opts: @opts
         )
       end
