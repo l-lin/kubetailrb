@@ -13,7 +13,6 @@ module Kubetailrb
       TAIL_FLAG = '--tail'
       FOLLOW_FLAGS = %w[-f --follow].freeze
       RAW_FLAGS = %w[-r --raw].freeze
-      PRETTY_PRINT_FLAGS = %w[-p --pretty].freeze
 
       attr_reader :reader
 
@@ -104,10 +103,6 @@ module Kubetailrb
 
         def parse_raw(*args)
           args.any? { |arg| RAW_FLAGS.include?(arg) }
-        end
-
-        def parse_pretty_print(*args)
-          args.any? { |arg| PRETTY_PRINT_FLAGS.include?(arg) }
         end
       end
     end

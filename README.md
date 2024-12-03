@@ -40,15 +40,15 @@ bundle exec rake install
 kubetailrb -h
 
 # follow pod logs
-kubetailrb 'clock' --namespace sandbox
+kubetailrb 'clock' --namespace sandbox --raw
 
 # follow pod structured JSON logs and display in human friendly way
-kubetailrb 'clock-json' --namespace sandbox --pretty --raw --follow
+kubetailrb 'clock-json' --namespace sandbox --follow
 # or with shorter flags
-kubetailrb 'clock-json' -n sandbox -p -r -f
+kubetailrb 'clock-json' -n sandbox -f
 
 # you can filter the pods using regex on the pod names
-kubetailrb '^clock(?!-json)' -n sandbox -p -r
+kubetailrb '^clock(?!-json)' -n sandbox -f
 
 ```
 

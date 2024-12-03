@@ -19,7 +19,6 @@ module Kubetailrb
                 --tail      The number of lines from the end of the logs to show. Defaults to 10.
             -f, --follow    Output appended data as the file grows.
                 --file      Display file content.
-            -p, --pretty    Pretty print JSON logs.
             -r, --raw       Only display pod logs.
             -n, --namespace Kubernetes namespace to use.
         HELP
