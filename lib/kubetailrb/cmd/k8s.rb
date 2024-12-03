@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'kubetailrb/k8s_pods_reader'
+require 'kubetailrb/reader/k8s_pods_reader'
 require 'kubetailrb/formatter/json_formatter'
 require 'kubetailrb/formatter/no_op_formatter'
 
@@ -20,7 +20,7 @@ module Kubetailrb
       attr_reader :reader
 
       def initialize(pod_query:, opts:, formatter:)
-        @reader = Kubetailrb::K8sPodsReader.new(pod_query: pod_query, formatter: formatter, opts: opts)
+        @reader = Kubetailrb::Reader::K8sPodsReader.new(pod_query: pod_query, formatter: formatter, opts: opts)
       end
 
       def execute

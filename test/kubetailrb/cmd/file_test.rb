@@ -9,7 +9,7 @@ module Kubetailrb
         it 'should raise an error if the file does not exist' do
           filepath = 'non-existent'
 
-          actual = assert_raises(Kubetailrb::NoSuchFileError) do
+          actual = assert_raises(Kubetailrb::Reader::NoSuchFileError) do
             File.new(filepath: filepath, last_nb_lines: 10, follow: false)
           end
 
@@ -114,7 +114,7 @@ module Kubetailrb
         it 'should raise NoSuchFileError if not given a filepath and provided another flag' do
           args = %w[--file --tail 3]
 
-          actual = assert_raises(NoSuchFileError) { File.create(*args) }
+          actual = assert_raises(Kubetailrb::Reader::NoSuchFileError) { File.create(*args) }
 
           assert_equal '--tail not found', actual.message
         end

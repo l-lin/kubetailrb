@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'kubetailrb/file_reader'
+require 'kubetailrb/reader/file_reader'
 
 module Kubetailrb
   module Cmd
@@ -13,7 +13,7 @@ module Kubetailrb
       attr_reader :reader
 
       def initialize(filepath:, last_nb_lines: DEFAULT_NB_LINES, follow: DEFAULT_FOLLOW)
-        @reader = Kubetailrb::FileReader.new(filepath: filepath, last_nb_lines: last_nb_lines, follow: follow)
+        @reader = Kubetailrb::Reader::FileReader.new(filepath: filepath, last_nb_lines: last_nb_lines, follow: follow)
       end
 
       def execute
