@@ -70,17 +70,9 @@ module Kubetailrb
     #
     def watch_for_new_pod_events
       k8s_client.watch_pods(namespace: @opts.namespace) do |notice|
-        if new_pod_event?(notice) && applicable?(notice.object)
-          # NOTE: We are in another thread (are we?), so no sense to use
-          # 'Thread.join' here.
+        next unless applicable?(notice.object)
 
-          notice.object.spec.containers.map do |container|
-            # NOTE: How much memory does a Ruby Thread takes? Can we spawn hundreds
-            # to thoudsands of Threads without issue?
-            puts "New pod #{notice.object.metadata.name}/#{container.name}"
-            Thread.new { create_reader(notice.object.metadata.name, container.name).read }
-          end
-        end
+        on_new_pod_event notice if new_pod_event?(notice)
       end
     end
 
@@ -90,6 +82,18 @@ module Kubetailrb
 
     def new_pod_event?(notice)
       notice.type == 'ADDED' && notice.object.kind == 'Pod'
+    end
+
+    def on_new_pod_event(notice)
+      # NOTE: We are in another thread (are we?), so no sense to use
+      # 'Thread.join' here.
+
+      notice.object.spec.containers.map do |container|
+        # NOTE: How much memory does a Ruby Thread takes? Can we spawn hundreds
+        # to thoudsands of Threads without issue?
+        puts "+ #{notice.object.metadata.name}/#{container.name}"
+        Thread.new { create_reader(notice.object.metadata.name, container.name).read }
+      end
     end
   end
 end

@@ -2,7 +2,8 @@
 
 require_relative 'with_k8s_client'
 require_relative 'validated'
-require_relative 'json_formatter'
+require_relative 'formatter/json_formatter'
+require_relative 'formatter/no_op_formatter'
 
 module Kubetailrb
   # Read Kubernetes pod logs.

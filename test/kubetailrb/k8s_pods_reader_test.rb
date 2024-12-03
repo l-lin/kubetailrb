@@ -13,7 +13,7 @@ module Kubetailrb
           actual = assert_raises(ArgumentError) do
             K8sPodsReader.new(
               pod_query: invalid_pod_query,
-              formatter: NoOpFormatter.new,
+              formatter: Formatter::NoOpFormatter.new,
               opts: K8sOpts.new(
                 namespace: NAMESPACE,
                 last_nb_lines: 10,
@@ -63,7 +63,7 @@ module Kubetailrb
         reader = K8sPodsReader.new(
           k8s_client: @k8s_client,
           pod_query: POD_QUERY,
-          formatter: NoOpFormatter.new,
+          formatter: Formatter::NoOpFormatter.new,
           opts: K8sOpts.new(
             namespace: NAMESPACE,
             last_nb_lines: 3,
@@ -88,7 +88,7 @@ module Kubetailrb
         reader = K8sPodsReader.new(
           k8s_client: @k8s_client,
           pod_query: POD_QUERY,
-          formatter: NoOpFormatter.new,
+          formatter: Formatter::NoOpFormatter.new,
           opts: K8sOpts.new(
             namespace: NAMESPACE,
             last_nb_lines: 3,
@@ -116,7 +116,7 @@ module Kubetailrb
         reader = K8sPodsReader.new(
           k8s_client: @k8s_client,
           pod_query: '.',
-          formatter: NoOpFormatter.new,
+          formatter: Formatter::NoOpFormatter.new,
           opts: K8sOpts.new(
             namespace: NAMESPACE,
             last_nb_lines: 3,
@@ -141,7 +141,7 @@ module Kubetailrb
         reader = K8sPodsReader.new(
           k8s_client: @k8s_client,
           pod_query: POD_QUERY,
-          formatter: NoOpFormatter.new,
+          formatter: Formatter::NoOpFormatter.new,
           opts: K8sOpts.new(
             namespace: NAMESPACE,
             last_nb_lines: 3,
@@ -171,7 +171,7 @@ module Kubetailrb
         reader = K8sPodsReader.new(
           k8s_client: @k8s_client,
           pod_query: POD_QUERY,
-          formatter: NoOpFormatter.new,
+          formatter: Formatter::NoOpFormatter.new,
           opts: K8sOpts.new(
             namespace: NAMESPACE,
             last_nb_lines: 3,
@@ -265,7 +265,7 @@ module Kubetailrb
         # In practice, new pods are created afterwards, so their logs are
         # displayed afterwards/
         expected = <<~EXPECTED
-          New pod #{new_pod_name}/#{new_container_name}
+          + #{new_pod_name}/#{new_container_name}
           log 1 from #{new_pod_name}
           log 2 from #{new_pod_name}
           log 3 from #{new_pod_name}

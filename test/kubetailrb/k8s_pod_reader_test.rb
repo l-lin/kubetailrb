@@ -15,7 +15,7 @@ module Kubetailrb
             K8sPodReader.new(
               pod_name: invalid_pod_name,
               container_name: CONTAINER_NAME,
-              formatter: NoOpFormatter.new,
+              formatter: Formatter::NoOpFormatter.new,
               opts: K8sOpts.new(
                 namespace: NAMESPACE,
                 last_nb_lines: 3,
@@ -35,7 +35,7 @@ module Kubetailrb
             K8sPodReader.new(
               pod_name: POD_NAME,
               container_name: invalid_container_name,
-              formatter: NoOpFormatter.new,
+              formatter: Formatter::NoOpFormatter.new,
               opts: K8sOpts.new(
                 namespace: NAMESPACE,
                 last_nb_lines: 3,
@@ -54,7 +54,7 @@ module Kubetailrb
           K8sPodReader.new(
             pod_name: POD_NAME,
             container_name: CONTAINER_NAME,
-            formatter: NoOpFormatter.new,
+            formatter: Formatter::NoOpFormatter.new,
             opts: nil
           )
         end
@@ -95,7 +95,7 @@ module Kubetailrb
           k8s_client: @k8s_client,
           pod_name: POD_NAME,
           container_name: CONTAINER_NAME,
-          formatter: NoOpFormatter.new,
+          formatter: Formatter::NoOpFormatter.new,
           opts: K8sOpts.new(
             namespace: NAMESPACE,
             last_nb_lines: 3,
@@ -118,7 +118,7 @@ module Kubetailrb
           k8s_client: @k8s_client,
           pod_name: POD_NAME,
           container_name: CONTAINER_NAME,
-          formatter: NoOpFormatter.new,
+          formatter: Formatter::NoOpFormatter.new,
           opts: K8sOpts.new(
             namespace: NAMESPACE,
             last_nb_lines: 3,
@@ -136,7 +136,7 @@ module Kubetailrb
           k8s_client: @k8s_client,
           pod_name: POD_NAME,
           container_name: CONTAINER_NAME,
-          formatter: NoOpFormatter.new,
+          formatter: Formatter::NoOpFormatter.new,
           opts: K8sOpts.new(
             namespace: NAMESPACE,
             last_nb_lines: 3,
