@@ -12,13 +12,14 @@ module Kubetailrb
       include Validated
       include WithK8sClient
 
-      attr_reader :pod_query, :opts
+      attr_reader :pod_query, :container_query, :opts
 
-      def initialize(pod_query:, opts:, k8s_client: nil)
-        validate(pod_query, opts)
+      def initialize(pod_query:, container_query:, opts:, k8s_client: nil)
+        validate(pod_query, container_query, opts)
 
         @k8s_client = k8s_client
         @pod_query = Regexp.new(pod_query)
+        @container_query = Regexp.new(container_query)
         @opts = opts
       end
 
@@ -27,10 +28,10 @@ module Kubetailrb
         watch_for_new_pod_events if @opts.follow?
 
         threads = pods.flat_map do |pod|
-          pod.spec.containers.map do |container|
+          pod.spec.containers.select { |container| applicable_container?(container.name) }.map do |container|
             # NOTE: How much memory does a Ruby Thread takes? Can we spawn hundreds
             # to thoudsands of Threads without issue?
-            Thread.new { create_reader(pod.metadata.name, container.name).read }
+            start_reading_pod_logs(pod.metadata.name, container.name)
           end
         end
 
@@ -41,15 +42,16 @@ module Kubetailrb
 
       private
 
-      def validate(pod_query, opts)
+      def validate(pod_query, container_query, opts)
         raise_if_blank pod_query, 'Pod query not set.'
+        raise_if_blank container_query, 'Container query not set.'
         raise_if_nil opts, 'Opts not set.'
       end
 
       def find_pods
         k8s_client
           .get_pods(namespace: @opts.namespace)
-          .select { |pod| applicable?(pod) }
+          .select { |pod| applicable_pod?(pod) }
       end
 
       def create_reader(pod_name, container_name)
@@ -67,14 +69,18 @@ module Kubetailrb
       #
       def watch_for_new_pod_events
         k8s_client.watch_pods(namespace: @opts.namespace) do |notice|
-          next unless applicable?(notice.object)
+          next unless applicable_pod?(notice.object)
 
           on_new_pod_event notice if new_pod_event?(notice)
         end
       end
 
-      def applicable?(pod)
+      def applicable_pod?(pod)
         pod.metadata.name.match?(@pod_query)
+      end
+
+      def applicable_container?(container_name)
+        container_name.match?(@container_query)
       end
 
       def new_pod_event?(notice)
@@ -86,11 +92,17 @@ module Kubetailrb
         # 'Thread.join' here.
 
         notice.object.spec.containers.map do |container|
+          next unless applicable_container?(container.name)
+
           # NOTE: How much memory does a Ruby Thread takes? Can we spawn hundreds
           # to thoudsands of Threads without issue?
           puts "+ #{notice.object.metadata.name}/#{container.name}"
-          Thread.new { create_reader(notice.object.metadata.name, container.name).read }
+          start_reading_pod_logs(notice.object.metadata.name, container.name)
         end
+      end
+
+      def start_reading_pod_logs(pod_name, container_name)
+        Thread.new { create_reader(pod_name, container_name).read }
       end
     end
   end

@@ -76,6 +76,14 @@ module Kubetailrb
 
           assert_equal 'Missing ["-n", "--namespace"] value.', actual.message
         end
+
+        it 'should raise MissingContainerQueryValueError if no value given for `--container` flag value' do
+          args = %w[some-pod --container]
+
+          actual = assert_raises(MissingContainerQueryValueError) { K8s.create(*args) }
+
+          assert_equal 'Missing ["-c", "--container"] value.', actual.message
+        end
       end
     end
   end

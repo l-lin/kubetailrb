@@ -50,6 +50,8 @@ kubetailrb 'clock-json' -n sandbox -f
 # you can filter the pods using regex on the pod names
 kubetailrb '^clock(?!-json)' -n sandbox -f
 
+# you can also filter the containers using regex on the container names
+kubetailrb 'clock' -n sandbox -f -c 'json'
 ```
 
 ## Development

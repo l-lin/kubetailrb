@@ -16,6 +16,7 @@ Flags:
       --file      Display file content.
   -r, --raw       Only display pod logs.
   -n, --namespace Kubernetes namespace to use.
+  -c, --container Container name when multiple containers in pod. Default to '.'.
 """
 
   Scenario: No argument
@@ -35,6 +36,7 @@ Flags:
       --file      Display file content.
   -r, --raw       Only display pod logs.
   -n, --namespace Kubernetes namespace to use.
+  -c, --container Container name when multiple containers in pod. Default to '.'.
 """
 
   Scenario: Display version

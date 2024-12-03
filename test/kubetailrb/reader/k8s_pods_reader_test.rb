@@ -6,6 +6,7 @@ module Kubetailrb
   module Reader
     class K8sPodsReaderTest < Minitest::Test
       POD_QUERY = 'some-*'
+      CONTAINER_QUERY = 'some-.*'
       NAMESPACE = 'some-namespace'
 
       describe '.new' do
@@ -14,6 +15,7 @@ module Kubetailrb
             actual = assert_raises(ArgumentError) do
               K8sPodsReader.new(
                 pod_query: invalid_pod_query,
+                container_query: CONTAINER_QUERY,
                 opts: K8sOpts.new(
                   namespace: NAMESPACE,
                   last_nb_lines: 10,
@@ -24,6 +26,25 @@ module Kubetailrb
             end
 
             assert_equal 'Pod query not set.', actual.message
+          end
+        end
+
+        it 'should raise an error if the container query is not set' do
+          given_invalid_string.each do |invalid_container_query|
+            actual = assert_raises(ArgumentError) do
+              K8sPodsReader.new(
+                pod_query: POD_QUERY,
+                container_query: invalid_container_query,
+                opts: K8sOpts.new(
+                  namespace: NAMESPACE,
+                  last_nb_lines: 10,
+                  follow: false,
+                  raw: false
+                )
+              )
+            end
+
+            assert_equal 'Container query not set.', actual.message
           end
         end
 
@@ -46,6 +67,7 @@ module Kubetailrb
           reader = K8sPodsReader.new(
             k8s_client: @k8s_client,
             pod_query: POD_QUERY,
+            container_query: CONTAINER_QUERY,
             opts: K8sOpts.new(
               namespace: NAMESPACE,
               last_nb_lines: 3,
@@ -70,6 +92,7 @@ module Kubetailrb
           reader = K8sPodsReader.new(
             k8s_client: @k8s_client,
             pod_query: POD_QUERY,
+            container_query: CONTAINER_QUERY,
             opts: K8sOpts.new(
               namespace: NAMESPACE,
               last_nb_lines: 3,
@@ -82,7 +105,7 @@ module Kubetailrb
           then_prefix_pod_name_to_pod_logs reader, pod_name, container_name
         end
 
-        it 'should display display all pod logs if pod query is .' do
+        it 'should display all pod logs if pod and container queries are .' do
           # GIVEN
           given_pod_list_found
           pod_name1 = 'redis-master'
@@ -97,6 +120,7 @@ module Kubetailrb
           reader = K8sPodsReader.new(
             k8s_client: @k8s_client,
             pod_query: '.',
+            container_query: '.',
             opts: K8sOpts.new(
               namespace: NAMESPACE,
               last_nb_lines: 3,
@@ -107,6 +131,34 @@ module Kubetailrb
 
           # THEN
           then_prefix_pod_name_to_multiple_pod_logs reader, pod_name1, container_name1, pod_name2, container_name2
+        end
+
+        it 'should only display one pod log if container query is specific' do
+          # GIVEN
+          given_pod_list_found
+          pod_name1 = 'redis-master'
+          container_name1 = 'master'
+          given_pod_logs pod_name1, container_name1
+          pod_name2 = 'some-pod'
+          container_name2 = 'some-container'
+          given_pod_logs pod_name2, container_name2
+          given_no_new_pod_event
+
+          # WHEN
+          reader = K8sPodsReader.new(
+            k8s_client: @k8s_client,
+            pod_query: '.',
+            container_query: 'some-.*',
+            opts: K8sOpts.new(
+              namespace: NAMESPACE,
+              last_nb_lines: 3,
+              follow: false,
+              raw: false
+            )
+          )
+
+          # THEN
+          then_prefix_pod_name_to_pod_logs reader, pod_name2, container_name2
         end
 
         it 'should display not display pod name if raw property is set to true' do
@@ -121,6 +173,7 @@ module Kubetailrb
           reader = K8sPodsReader.new(
             k8s_client: @k8s_client,
             pod_query: POD_QUERY,
+            container_query: CONTAINER_QUERY,
             opts: K8sOpts.new(
               namespace: NAMESPACE,
               last_nb_lines: 3,
@@ -150,6 +203,7 @@ module Kubetailrb
           reader = K8sPodsReader.new(
             k8s_client: @k8s_client,
             pod_query: POD_QUERY,
+            container_query: CONTAINER_QUERY,
             opts: K8sOpts.new(
               namespace: NAMESPACE,
               last_nb_lines: 3,

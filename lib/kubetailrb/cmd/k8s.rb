@@ -8,16 +8,23 @@ module Kubetailrb
     class K8s
       DEFAULT_NB_LINES = 10
       DEFAULT_NAMESPACE = 'default'
+      DEFAULT_CONTAINER_QUERY = '.*'
 
       NAMESPACE_FLAGS = %w[-n --namespace].freeze
       TAIL_FLAG = '--tail'
       FOLLOW_FLAGS = %w[-f --follow].freeze
       RAW_FLAGS = %w[-r --raw].freeze
 
+      CONTAINER_FLAGS = %w[-c --container].freeze
+
       attr_reader :reader
 
-      def initialize(pod_query:, opts:)
-        @reader = Kubetailrb::Reader::K8sPodsReader.new(pod_query: pod_query, opts: opts)
+      def initialize(pod_query:, container_query:, opts:)
+        @reader = Kubetailrb::Reader::K8sPodsReader.new(
+          pod_query: pod_query,
+          container_query: container_query,
+          opts: opts
+        )
       end
 
       def execute
@@ -28,6 +35,7 @@ module Kubetailrb
         def create(*args)
           new(
             pod_query: parse_pod_query(*args),
+            container_query: parse_container_query(*args),
             opts: K8sOpts.new(
               namespace: parse_namespace(*args),
               last_nb_lines: parse_nb_lines(*args),
@@ -104,6 +112,16 @@ module Kubetailrb
         def parse_raw(*args)
           args.any? { |arg| RAW_FLAGS.include?(arg) }
         end
+
+        def parse_container_query(*args)
+          return DEFAULT_CONTAINER_QUERY unless args.any? { |arg| CONTAINER_FLAGS.include?(arg) }
+
+          index = args.find_index { |arg| CONTAINER_FLAGS.include?(arg) }.to_i
+
+          raise MissingContainerQueryValueError, "Missing #{CONTAINER_FLAGS} value." if args[index + 1].nil?
+
+          args[index + 1]
+        end
       end
     end
 
@@ -111,6 +129,9 @@ module Kubetailrb
     end
 
     class MissingNamespaceValueError < RuntimeError
+    end
+
+    class MissingContainerQueryValueError < RuntimeError
     end
 
     class InvalidNbLinesValueError < RuntimeError
