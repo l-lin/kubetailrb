@@ -42,28 +42,6 @@
                         "securityContext": {
                             "capabilities": {}
                         }
-                    },
-                    {
-                        "name": "php-redis",
-                        "image": "kubernetes/example-guestbook-php-redis",
-                        "ports": [
-                            {
-                                "hostPort": 8000,
-                                "containerPort": 80,
-                                "protocol": "TCP"
-                            }
-                        ],
-                        "resources": {
-                            "limits": {
-                                "cpu": "100m",
-                                "memory": "50000000"
-                            }
-                        },
-                        "terminationMessagePath": "/dev/termination-log",
-                        "imagePullPolicy": "IfNotPresent",
-                        "securityContext": {
-                            "capabilities": {}
-                        }
                     }
                 ],
                 "restartPolicy": {
@@ -92,7 +70,7 @@
                 "volumes": null,
                 "containers": [
                     {
-                        "name": "master",
+                        "name": "some-container",
                         "image": "dockerfile/some-pod",
                         "ports": [],
                         "resources": {

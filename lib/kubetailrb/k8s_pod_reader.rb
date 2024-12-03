@@ -12,11 +12,12 @@ module Kubetailrb
 
     attr_reader :pod_name, :opts
 
-    def initialize(pod_name:, formatter:, opts:, k8s_client: nil)
-      validate(pod_name, formatter, opts)
+    def initialize(pod_name:, container_name:, formatter:, opts:, k8s_client: nil)
+      validate(pod_name, container_name, formatter, opts)
 
       @k8s_client = k8s_client
       @pod_name = pod_name
+      @container_name = container_name
       @formatter = formatter
       @opts = opts
     end
@@ -36,7 +37,7 @@ module Kubetailrb
       first_log_to_display = pod_logs.to_s.split("\n").first
       should_print_logs = false
 
-      k8s_client.watch_pod_log(@pod_name, @opts.namespace) do |line|
+      k8s_client.watch_pod_log(@pod_name, @opts.namespace, container: @container_name) do |line|
         # NOTE: Is it good practice to update a variable that is outside of a
         # block? Can we do better?
         should_print_logs = true if line == first_log_to_display
@@ -47,8 +48,9 @@ module Kubetailrb
 
     private
 
-    def validate(pod_name, formatter, opts)
+    def validate(pod_name, container_name, formatter, opts)
       raise_if_blank pod_name, 'Pod name not set.'
+      raise_if_blank container_name, 'Container name not set.'
 
       raise ArgumentError, 'Formatter not set.' if formatter.nil?
 
@@ -64,7 +66,7 @@ module Kubetailrb
       if @opts.raw?
         puts @formatter.format(logs)
       else
-        puts "#{@pod_name} - #{@formatter.format logs}"
+        puts "#{@pod_name} #{@container_name} - #{@formatter.format logs}"
       end
       $stdout.flush
     end
@@ -73,11 +75,25 @@ module Kubetailrb
       # The pod may still not up/ready, so small hack to retry 120 times (number
       # taken randomly) until the pod returns its logs.
       120.times do
-        return k8s_client.get_pod_log(@pod_name, @opts.namespace, tail_lines: @opts.last_nb_lines)
-      rescue Kubeclient::HttpError => e
+        pod_logs = k8s_client.get_pod_log(
+          @pod_name,
+          @opts.namespace,
+          container: @container_name,
+          tail_lines: @opts.last_nb_lines
+        )
+
+        if pod_logs.to_s.split("\n").empty?
+          raise PodNotReadyError, "No log returned from #{@pod_name}/#{@container_name}"
+        end
+
+        return pod_logs
+      rescue Kubeclient::HttpError, PodNotReadyError => e
         puts e.message
         sleep 1
       end
     end
+  end
+
+  class PodNotReadyError < RuntimeError
   end
 end

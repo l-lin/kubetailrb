@@ -71,8 +71,6 @@ bundle exec rake test:watch
 
 # Run tests, cucumber features and lint.
 bundle exec rake
-
-# To release a new version:
 ```
 
 ## Release a new version

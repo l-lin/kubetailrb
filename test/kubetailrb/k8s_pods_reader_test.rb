@@ -79,8 +79,9 @@ module Kubetailrb
       it 'should display only display filtered pod logs' do
         # GIVEN
         pod_name = 'some-pod'
+        container_name = 'some-container'
         given_pod_list_found
-        given_pod_logs pod_name
+        given_pod_logs pod_name, container_name
         given_no_new_pod_event
 
         # WHEN
@@ -97,16 +98,18 @@ module Kubetailrb
         )
 
         # THEN
-        then_prefix_pod_name_to_pod_logs reader, pod_name
+        then_prefix_pod_name_to_pod_logs reader, pod_name, container_name
       end
 
       it 'should display display all pod logs if pod query is .' do
         # GIVEN
         given_pod_list_found
         pod_name1 = 'redis-master'
-        given_pod_logs pod_name1
+        container_name1 = 'master'
+        given_pod_logs pod_name1, container_name1
         pod_name2 = 'some-pod'
-        given_pod_logs pod_name2
+        container_name2 = 'some-container'
+        given_pod_logs pod_name2, container_name2
         given_no_new_pod_event
 
         # WHEN
@@ -123,14 +126,15 @@ module Kubetailrb
         )
 
         # THEN
-        then_prefix_pod_name_to_multiple_pod_logs reader, pod_name1, pod_name2
+        then_prefix_pod_name_to_multiple_pod_logs reader, pod_name1, container_name1, pod_name2, container_name2
       end
 
       it 'should display not display pod name if raw property is set to true' do
         # GIVEN
         given_pod_list_found
         pod_name = 'some-pod'
-        given_pod_logs pod_name
+        container_name = 'some-container'
+        given_pod_logs pod_name, container_name
         given_no_new_pod_event
 
         # WHEN
@@ -154,12 +158,14 @@ module Kubetailrb
         # GIVEN
         given_pod_list_found
         pod_name = 'some-pod'
-        given_pod_logs pod_name
-        given_pod_logs_from_watch pod_name
+        container_name = 'some-container'
+        given_pod_logs pod_name, container_name
+        given_pod_logs_from_watch pod_name, container_name
         given_new_pod_events
         new_pod_name = 'some-other-pod'
-        given_pod_logs new_pod_name
-        given_pod_logs_from_watch new_pod_name
+        new_container_name = 'some-other-container'
+        given_pod_logs new_pod_name, new_container_name
+        given_pod_logs_from_watch new_pod_name, new_container_name
 
         # WHEN
         reader = K8sPodsReader.new(
@@ -175,7 +181,7 @@ module Kubetailrb
         )
 
         # THEN
-        then_no_prefix_to_pod_logs_with_new_pod reader, pod_name, new_pod_name
+        then_no_prefix_to_pod_logs_with_new_pod reader, pod_name, new_pod_name, new_container_name
       end
 
       def given_empty_pod_list
@@ -200,43 +206,43 @@ module Kubetailrb
           .to_return(body: open_test_file('watch_stream.json'), status: 200)
       end
 
-      def given_pod_logs(pod_name)
+      def given_pod_logs(pod_name, container_name)
         pod_logs = <<~PODLOGS
           log 1 from #{pod_name}
           log 2 from #{pod_name}
           log 3 from #{pod_name}
         PODLOGS
-        stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods/#{pod_name}/log?tailLines=3")
+        stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods/#{pod_name}/log?container=#{container_name}&tailLines=3")
           .to_return(status: 200, body: pod_logs)
       end
 
-      def given_pod_logs_from_watch(pod_name)
+      def given_pod_logs_from_watch(pod_name, container_name)
         pod_logs = <<~PODLOGS
           log 1 from #{pod_name}
           log 2 from #{pod_name}
           log 3 from #{pod_name}
         PODLOGS
-        stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods/#{pod_name}/log?follow=true")
+        stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods/#{pod_name}/log?container=#{container_name}&follow=true")
           .to_return(status: 200, body: pod_logs)
       end
 
-      def then_prefix_pod_name_to_pod_logs(reader, pod_name)
+      def then_prefix_pod_name_to_pod_logs(reader, pod_name, container_name)
         expected = <<~EXPECTED
-          #{pod_name} - log 1 from #{pod_name}
-          #{pod_name} - log 2 from #{pod_name}
-          #{pod_name} - log 3 from #{pod_name}
+          #{pod_name} #{container_name} - log 1 from #{pod_name}
+          #{pod_name} #{container_name} - log 2 from #{pod_name}
+          #{pod_name} #{container_name} - log 3 from #{pod_name}
         EXPECTED
         assert_output(expected) { reader.read }
       end
 
-      def then_prefix_pod_name_to_multiple_pod_logs(reader, pod_name1, pod_name2)
+      def then_prefix_pod_name_to_multiple_pod_logs(reader, pod_name1, container_name1, pod_name2, container_name2)
         expected = <<~EXPECTED
-          #{pod_name1} - log 1 from #{pod_name1}
-          #{pod_name1} - log 2 from #{pod_name1}
-          #{pod_name1} - log 3 from #{pod_name1}
-          #{pod_name2} - log 1 from #{pod_name2}
-          #{pod_name2} - log 2 from #{pod_name2}
-          #{pod_name2} - log 3 from #{pod_name2}
+          #{pod_name1} #{container_name1} - log 1 from #{pod_name1}
+          #{pod_name1} #{container_name1} - log 2 from #{pod_name1}
+          #{pod_name1} #{container_name1} - log 3 from #{pod_name1}
+          #{pod_name2} #{container_name2} - log 1 from #{pod_name2}
+          #{pod_name2} #{container_name2} - log 2 from #{pod_name2}
+          #{pod_name2} #{container_name2} - log 3 from #{pod_name2}
         EXPECTED
         assert_output(expected) { reader.read }
       end
@@ -250,7 +256,7 @@ module Kubetailrb
         assert_output(expected) { reader.read }
       end
 
-      def then_no_prefix_to_pod_logs_with_new_pod(reader, pod_name, new_pod_name)
+      def then_no_prefix_to_pod_logs_with_new_pod(reader, pod_name, new_pod_name, new_container_name)
         # The watch operation is performed before reading the pod logs.
         # Since I cannot simulate a delay before the the stubbed k8s API server
         # returns the right streams (otherwise, we will introduce a flaky test...
@@ -259,6 +265,7 @@ module Kubetailrb
         # In practice, new pods are created afterwards, so their logs are
         # displayed afterwards/
         expected = <<~EXPECTED
+          New pod #{new_pod_name}/#{new_container_name}
           log 1 from #{new_pod_name}
           log 2 from #{new_pod_name}
           log 3 from #{new_pod_name}

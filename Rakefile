@@ -66,6 +66,17 @@ namespace :k8s do
     puts `kubectl run #{app_name} --image #{docker_image}`
   end
 
+  desc 'Delete application from k8s.'
+  task :delete, [:app_name] do |_, args|
+    next unless k8s_up?
+
+    app_name = args[:app_name]
+
+    next if app_name.nil? || app_name.strip.empty?
+
+    puts `kubectl delete po #{app_name} --force true` if pod_up?(app_name)
+  end
+
   desc 'Deploy all applications to k8s.'
   task :deploy_all do
     Rake::Task['k8s:deploy'].invoke('clock')

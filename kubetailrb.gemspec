@@ -53,8 +53,8 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'guard-cucumber', '~> 3.0.0'    # Automatically runs your features.
   spec.add_development_dependency 'guard-minitest', '~> 2.4.6'    # Automatically run your tests with Minitest.
   spec.add_development_dependency 'minitest', '~> 5.16'           # Complete suite of testing facilities.
-  spec.add_development_dependency 'pry'                           # Runtime dev console and IRB.
-  spec.add_development_dependency 'pry-byebug'                    # Step-by-step debugging.
+  spec.add_development_dependency 'pry', '~> 0.14.2'              # Runtime dev console and IRB.
+  spec.add_development_dependency 'pry-byebug', '~> 3.10.1'       # Step-by-step debugging.
   spec.add_development_dependency 'rake', '~> 13.0'               # A Make-like build utility for Ruby.
   spec.add_development_dependency 'rubocop', '~> 1.21'            # Static code analyzer and formatter.
   spec.add_development_dependency 'rubocop-minitest', '~> 0.36.0' # Code style checking for Minitest files.
