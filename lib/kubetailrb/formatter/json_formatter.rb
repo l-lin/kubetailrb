@@ -25,7 +25,15 @@ module Kubetailrb
       end
 
       def format_application_log(json)
-        "#{json["@timestamp"]}#{log_level json}#{json["message"]}"
+        "#{json["@timestamp"]}#{log_level json}#{json["message"]}#{format_stack_trace(json)}"
+      end
+
+      def format_stack_trace(json)
+        stack_trace = json['error.stack_trace']
+
+        return '' if stack_trace.nil? || stack_trace.strip&.empty?
+
+        "\n#{stack_trace}"
       end
 
       def http_status_code(json)

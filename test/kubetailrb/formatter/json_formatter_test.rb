@@ -48,6 +48,26 @@ module Kubetailrb
 
           assert_equal str, actual
         end
+
+        it 'should display the stack trace if there is a error.stack_trace field' do
+          json = <<~JSON
+            {
+              "@timestamp": "2024-11-09T19:42:55.088Z",
+              "log.level": "ERROR",
+              "message": "Time is 2024-11-09T19:42:55.088Z",
+              "error.stack_trace": "some error\\n    at lin.louis.Error.simulate(Error:42)"
+            }
+          JSON
+
+          actual = @formatter.format json
+
+          expected = <<~EXPECTED.chomp
+            2024-11-09T19:42:55.088Z \e[1;30;41m E \e[0m Time is 2024-11-09T19:42:55.088Z
+            some error
+                at lin.louis.Error.simulate(Error:42)
+          EXPECTED
+          assert_equal expected, actual
+        end
       end
     end
   end
