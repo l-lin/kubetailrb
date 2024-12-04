@@ -90,6 +90,20 @@ module Kubetailrb
           assert_equal expected, actual
         end
 
+        it 'should display rails log in pretty format even if log.level is absent' do
+          json = <<~JSON
+            {
+              "@timestamp": "2024-11-09T19:42:55.088Z",
+              "message": "Time is 2024-11-09T19:42:55.088Z"
+            }
+          JSON
+
+          actual = @formatter.format json
+
+          expected = '2024-11-09T19:42:55.088Z Time is 2024-11-09T19:42:55.088Z'
+          assert_equal expected, actual
+        end
+
         it 'should display rails access log in pretty format' do
           json = <<~JSON
             {

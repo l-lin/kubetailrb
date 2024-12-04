@@ -47,8 +47,8 @@ module Kubetailrb
       end
 
       def log_level(json)
-        level = json['log.level'] || json['log']['level']
-        return '' if level.nil? || level.strip.empty?
+        level = json['log.level'] || json.dig('log', 'level')
+        return ' ' if level.nil? || level.strip.empty?
         return blue(' I ') if level == 'INFO'
         return yellow(' W ') if level == 'WARN'
         return red(' E ') if level == 'ERROR'
