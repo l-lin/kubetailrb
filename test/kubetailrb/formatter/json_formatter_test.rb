@@ -68,6 +68,60 @@ module Kubetailrb
           EXPECTED
           assert_equal expected, actual
         end
+
+        it 'should display rails log in pretty format' do
+          json = <<~JSON
+            {
+              "@timestamp": "2024-11-09T19:42:55.088Z",
+              "log": {
+                "logger": "lin_louis_logger",
+                "level": "WARN"
+              },
+              "message": "Time is 2024-11-09T19:42:55.088Z",
+              "rails": {
+                "message": "Time is 2024-11-09T19:42:55.088Z"
+              }
+            }
+          JSON
+
+          actual = @formatter.format json
+
+          expected = "2024-11-09T19:42:55.088Z \e[1;30;43m W \e[0m Time is 2024-11-09T19:42:55.088Z"
+          assert_equal expected, actual
+        end
+
+        it 'should display rails access log in pretty format' do
+          json = <<~JSON
+            {
+              "url": {
+                "scheme": "https",
+                "domain": "localhost",
+                "port": 443,
+                "path": "/sync",
+                "query": "last_event_id=7425de38124429224e31"
+              },
+              "event": {
+                "duration": "2024-12-04T21:59:42.348+01:00"
+              },
+              "request_id": "14615e3bd77a06c6b3572583777ea7da",
+              "rails_route": "some/controller#index",
+              "http_method": "GET",
+              "http_path": "/foobar",
+              "rails_format": "json",
+              "rails_controller": "some/controller",
+              "rails_action": "index",
+              "http_status": 200,
+              "source": "rails_logs",
+              "@timestamp": "2024-11-09T19:42:55.088Z",
+              "@version": "1"
+            }
+          JSON
+
+          actual = @formatter.format json
+
+          expected = "2024-11-09T19:42:55.088Z \e[1;30;44m I \e[0m [200] GET /foobar"
+          assert_equal expected, actual
+        end
       end
     end
   end

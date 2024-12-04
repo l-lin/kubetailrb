@@ -17,15 +17,15 @@ module Kubetailrb
       private
 
       def access_log?(json)
-        json.include?('http.response.status_code')
+        json.include?('http.response.status_code') || json.include?('http_status')
       end
 
       def format_access_log(json)
-        "#{json["@timestamp"]}#{http_status_code json}#{json["http.request.method"]} #{json["url.path"]}"
+        "#{json["@timestamp"]}#{http_status_code json}#{http_method json} #{url_path json}"
       end
 
       def format_application_log(json)
-        "#{json["@timestamp"]}#{log_level json}#{json["message"]}#{format_stack_trace(json)}"
+        "#{json["@timestamp"]}#{log_level json}#{json["message"]}#{format_stack_trace json}"
       end
 
       def format_stack_trace(json)
@@ -37,7 +37,7 @@ module Kubetailrb
       end
 
       def http_status_code(json)
-        code = json['http.response.status_code']
+        code = json['http.response.status_code'] || json['http_status']
 
         return "#{blue(" I ")}[#{code}] " if code >= 200 && code < 400
         return "#{yellow(" W ")}[#{code}] " if code >= 400 && code < 500
@@ -47,13 +47,21 @@ module Kubetailrb
       end
 
       def log_level(json)
-        level = json['log.level']
+        level = json['log.level'] || json['log']['level']
         return '' if level.nil? || level.strip.empty?
         return blue(' I ') if level == 'INFO'
         return yellow(' W ') if level == 'WARN'
         return red(' E ') if level == 'ERROR'
 
         " #{level} "
+      end
+
+      def http_method(json)
+        json['http.request.method'] || json['http_method']
+      end
+
+      def url_path(json)
+        json['url.path'] || json['http_path']
       end
 
       def colorize(text, color_code)
