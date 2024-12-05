@@ -14,6 +14,7 @@ module Kubetailrb
       TAIL_FLAG = '--tail'
       FOLLOW_FLAGS = %w[-f --follow].freeze
       RAW_FLAGS = %w[-r --raw].freeze
+      VERBOSE_FLAG = '--verbose'
 
       CONTAINER_FLAGS = %w[-c --container].freeze
 
@@ -40,7 +41,8 @@ module Kubetailrb
               namespace: parse_namespace(*args),
               last_nb_lines: parse_nb_lines(*args),
               follow: parse_follow(*args),
-              raw: parse_raw(*args)
+              raw: parse_raw(*args),
+              verbose: parse_verbose(*args)
             )
           )
         end
@@ -121,6 +123,10 @@ module Kubetailrb
           raise MissingContainerQueryValueError, "Missing #{CONTAINER_FLAGS} value." if args[index + 1].nil?
 
           args[index + 1]
+        end
+
+        def parse_verbose(*args)
+          args.include?(VERBOSE_FLAG)
         end
       end
     end

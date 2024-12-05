@@ -17,10 +17,11 @@ module Kubetailrb
           assert_equal 10, actual.reader.opts.last_nb_lines
           refute actual.reader.opts.follow?
           refute actual.reader.opts.raw?
+          refute actual.reader.opts.verbose?
         end
 
         it 'should return k8s command with custom last nb lines if all flags customized' do
-          args = %w[some-pod --tail 3 --follow --raw --namespace some-namespace]
+          args = %w[some-pod --tail 3 --follow --raw --namespace some-namespace --verbose]
 
           actual = K8s.create(*args)
 
@@ -30,6 +31,7 @@ module Kubetailrb
           assert_equal 3, actual.reader.opts.last_nb_lines
           assert actual.reader.opts.follow?
           assert actual.reader.opts.raw?
+          assert actual.reader.opts.verbose?
         end
 
         it 'should return k8s command with custom last nb lines if `-f` and `-n` flags' do

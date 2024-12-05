@@ -20,7 +20,8 @@ module Kubetailrb
                   namespace: NAMESPACE,
                   last_nb_lines: 10,
                   follow: false,
-                  raw: false
+                  raw: false,
+                  verbose: false
                 )
               )
             end
@@ -39,7 +40,8 @@ module Kubetailrb
                   namespace: NAMESPACE,
                   last_nb_lines: 10,
                   follow: false,
-                  raw: false
+                  raw: false,
+                  verbose: false
                 )
               )
             end
@@ -72,7 +74,8 @@ module Kubetailrb
               namespace: NAMESPACE,
               last_nb_lines: 3,
               follow: false,
-              raw: false
+              raw: false,
+              verbose: false
             )
           )
 
@@ -80,7 +83,7 @@ module Kubetailrb
           assert_output('') { reader.read }
         end
 
-        it 'should display only display filtered pod logs' do
+        it 'should display only display filtered pod logs with pod name prefixed if in verbose mode' do
           # GIVEN
           pod_name = 'some-pod'
           container_name = 'some-container'
@@ -97,7 +100,8 @@ module Kubetailrb
               namespace: NAMESPACE,
               last_nb_lines: 3,
               follow: false,
-              raw: false
+              raw: false,
+              verbose: true
             )
           )
 
@@ -105,7 +109,7 @@ module Kubetailrb
           then_prefix_pod_name_to_pod_logs reader, pod_name, container_name
         end
 
-        it 'should display all pod logs if pod and container queries are .' do
+        it 'should display all pod logs if pod and container queries are . and in verbose mode' do
           # GIVEN
           given_pod_list_found
           pod_name1 = 'redis-master'
@@ -125,7 +129,8 @@ module Kubetailrb
               namespace: NAMESPACE,
               last_nb_lines: 3,
               follow: false,
-              raw: false
+              raw: false,
+              verbose: true
             )
           )
 
@@ -133,7 +138,7 @@ module Kubetailrb
           then_prefix_pod_name_to_multiple_pod_logs reader, pod_name1, container_name1, pod_name2, container_name2
         end
 
-        it 'should only display one pod log if container query is specific' do
+        it 'should only display one pod log if container query is specific and in verbose mode' do
           # GIVEN
           given_pod_list_found
           pod_name1 = 'redis-master'
@@ -153,7 +158,8 @@ module Kubetailrb
               namespace: NAMESPACE,
               last_nb_lines: 3,
               follow: false,
-              raw: false
+              raw: false,
+              verbose: true
             )
           )
 
@@ -161,7 +167,7 @@ module Kubetailrb
           then_prefix_pod_name_to_pod_logs reader, pod_name2, container_name2
         end
 
-        it 'should display not display pod name if raw property is set to true' do
+        it 'should display not display pod name if raw property is set to true and no verbose mode' do
           # GIVEN
           given_pod_list_found
           pod_name = 'some-pod'
@@ -178,7 +184,8 @@ module Kubetailrb
               namespace: NAMESPACE,
               last_nb_lines: 3,
               follow: false,
-              raw: true
+              raw: true,
+              verbose: false
             )
           )
 
@@ -208,7 +215,8 @@ module Kubetailrb
               namespace: NAMESPACE,
               last_nb_lines: 3,
               follow: true,
-              raw: true
+              raw: true,
+              verbose: false
             )
           )
 

@@ -21,15 +21,7 @@ module Kubetailrb
         @k8s_client = k8s_client
         @pod_name = pod_name
         @container_name = container_name
-        @formatter = if opts.raw?
-                       Kubetailrb::Formatter::NoOpFormatter.new
-                     else
-                       Kubetailrb::Formatter::PodMetadataFormatter.new(
-                         pod_name,
-                         container_name,
-                         Kubetailrb::Formatter::JsonFormatter.new
-                       )
-                     end
+        @formatter = create_formatter(opts, pod_name, container_name)
         @opts = opts
       end
 
@@ -95,6 +87,23 @@ module Kubetailrb
           puts e.message
           sleep 1
         end
+      end
+
+      def create_formatter(opts, pod_name, container_name)
+        formatter = if opts.raw?
+                      Kubetailrb::Formatter::NoOpFormatter.new
+                    else
+                      Kubetailrb::Formatter::JsonFormatter.new
+                    end
+
+        if opts.verbose?
+          formatter = Kubetailrb::Formatter::PodMetadataFormatter.new(
+            pod_name,
+            container_name, formatter
+          )
+        end
+
+        formatter
       end
     end
 

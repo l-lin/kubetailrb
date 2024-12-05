@@ -20,7 +20,8 @@ module Kubetailrb
                   namespace: NAMESPACE,
                   last_nb_lines: 3,
                   follow: false,
-                  raw: false
+                  raw: false,
+                  verbose: false
                 )
               )
             end
@@ -39,7 +40,8 @@ module Kubetailrb
                   namespace: NAMESPACE,
                   last_nb_lines: 3,
                   follow: false,
-                  raw: false
+                  raw: false,
+                  verbose: false
                 )
               )
             end
@@ -72,7 +74,7 @@ module Kubetailrb
           @k8s_client = Kubeclient::Client.new('http://localhost:8080/api/', 'v1')
         end
 
-        it 'should get pod logs with pod name if given 3 last nb lines and not watched and raw disabled' do
+        it 'should get pod logs with pod name if given 3 last nb lines & not watched & raw disabled & verbose mode' do
           reader = K8sPodReader.new(
             k8s_client: @k8s_client,
             pod_name: POD_NAME,
@@ -81,7 +83,8 @@ module Kubetailrb
               namespace: NAMESPACE,
               last_nb_lines: 3,
               follow: false,
-              raw: false
+              raw: false,
+              verbose: true
             )
           )
           given_pod_logs
@@ -103,7 +106,8 @@ module Kubetailrb
               namespace: NAMESPACE,
               last_nb_lines: 3,
               follow: false,
-              raw: true
+              raw: true,
+              verbose: false
             )
           )
           pod_logs = given_pod_logs
@@ -111,7 +115,7 @@ module Kubetailrb
           assert_output(pod_logs) { reader.read }
         end
 
-        it 'should get pod logs in stream if given 3 last nb lines and are watched and raw disabled' do
+        it 'should get pod logs in stream if given 3 last nb lines and are watched and raw disabled and verbose mode' do
           reader = K8sPodReader.new(
             k8s_client: @k8s_client,
             pod_name: POD_NAME,
@@ -120,7 +124,8 @@ module Kubetailrb
               namespace: NAMESPACE,
               last_nb_lines: 3,
               follow: true,
-              raw: false
+              raw: false,
+              verbose: true
             )
           )
 

@@ -14,7 +14,8 @@ module Kubetailrb
               namespace: invalid_namespace,
               last_nb_lines: 10,
               follow: false,
-              raw: false
+              raw: false,
+              verbose: false
             )
           end
 
@@ -29,7 +30,8 @@ module Kubetailrb
               namespace: NAMESPACE,
               last_nb_lines: invalid_last_nb_lines,
               follow: false,
-              raw: false
+              raw: false,
+              verbose: false
             )
           end
 
@@ -44,7 +46,8 @@ module Kubetailrb
               namespace: NAMESPACE,
               last_nb_lines: 10,
               follow: follow,
-              raw: false
+              raw: false,
+              verbose: false
             )
           end
 
@@ -59,11 +62,28 @@ module Kubetailrb
               namespace: NAMESPACE,
               last_nb_lines: 10,
               follow: false,
-              raw: invalid_raw
+              raw: invalid_raw,
+              verbose: false
             )
           end
 
           assert_equal "Invalid raw: #{invalid_raw}.", actual.message
+        end
+      end
+
+      it 'should raise an error if verbose is invalid' do
+        given_invalid_boolean.each do |invalid_verbose|
+          actual = assert_raises(ArgumentError) do
+            K8sOpts.new(
+              namespace: NAMESPACE,
+              last_nb_lines: 10,
+              follow: false,
+              raw: false,
+              verbose: invalid_verbose
+            )
+          end
+
+          assert_equal "Invalid verbose: #{invalid_verbose}.", actual.message
         end
       end
 
