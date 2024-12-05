@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    kubetailrb (0.1.0)
+    kubetailrb (0.2.0)
       kubeclient (~> 4.12.0)
 
 GEM
