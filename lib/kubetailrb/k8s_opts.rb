@@ -9,12 +9,12 @@ module Kubetailrb
 
     attr_reader :namespace, :last_nb_lines
 
-    def initialize(namespace:, last_nb_lines:, follow:, raw:, verbose:)
+    def initialize(namespace:, last_nb_lines:, follow:, raw:, display_names:)
       @namespace = namespace
       @last_nb_lines = last_nb_lines
       @follow = follow
       @raw = raw
-      @verbose = verbose
+      @display_names = display_names
 
       validate
     end
@@ -27,8 +27,8 @@ module Kubetailrb
       @raw
     end
 
-    def verbose?
-      @verbose
+    def display_names?
+      @display_names
     end
 
     private
@@ -38,7 +38,7 @@ module Kubetailrb
       validate_last_nb_lines @last_nb_lines
       validate_boolean @follow, "Invalid follow: #{@follow}."
       validate_boolean @raw, "Invalid raw: #{@raw}."
-      validate_boolean @verbose, "Invalid verbose: #{@verbose}."
+      validate_boolean @display_names, "Invalid display names: #{@display_names}."
     end
   end
 end

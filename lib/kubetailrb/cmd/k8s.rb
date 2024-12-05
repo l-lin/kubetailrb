@@ -14,7 +14,7 @@ module Kubetailrb
       TAIL_FLAG = '--tail'
       FOLLOW_FLAGS = %w[-f --follow].freeze
       RAW_FLAGS = %w[-r --raw].freeze
-      VERBOSE_FLAG = '--verbose'
+      DISPLAY_NAMES_FLAG = '--display-names'
 
       CONTAINER_FLAGS = %w[-c --container].freeze
 
@@ -42,7 +42,7 @@ module Kubetailrb
               last_nb_lines: parse_nb_lines(*args),
               follow: parse_follow(*args),
               raw: parse_raw(*args),
-              verbose: parse_verbose(*args)
+              display_names: parse_display_names(*args)
             )
           )
         end
@@ -125,8 +125,8 @@ module Kubetailrb
           args[index + 1]
         end
 
-        def parse_verbose(*args)
-          args.include?(VERBOSE_FLAG)
+        def parse_display_names(*args)
+          args.include?(DISPLAY_NAMES_FLAG)
         end
       end
     end

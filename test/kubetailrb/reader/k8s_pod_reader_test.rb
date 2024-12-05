@@ -21,7 +21,7 @@ module Kubetailrb
                   last_nb_lines: 3,
                   follow: false,
                   raw: false,
-                  verbose: false
+                  display_names: false
                 )
               )
             end
@@ -41,7 +41,7 @@ module Kubetailrb
                   last_nb_lines: 3,
                   follow: false,
                   raw: false,
-                  verbose: false
+                  display_names: false
                 )
               )
             end
@@ -74,7 +74,7 @@ module Kubetailrb
           @k8s_client = Kubeclient::Client.new('http://localhost:8080/api/', 'v1')
         end
 
-        it 'should get pod logs with pod name if given 3 last nb lines & not watched & raw disabled & verbose mode' do
+        it 'should get pod logs with pod name if given 3 last nb lines & not watched & raw disabled & display names' do
           reader = K8sPodReader.new(
             k8s_client: @k8s_client,
             pod_name: POD_NAME,
@@ -84,7 +84,7 @@ module Kubetailrb
               last_nb_lines: 3,
               follow: false,
               raw: false,
-              verbose: true
+              display_names: true
             )
           )
           given_pod_logs
@@ -107,7 +107,7 @@ module Kubetailrb
               last_nb_lines: 3,
               follow: false,
               raw: true,
-              verbose: false
+              display_names: false
             )
           )
           pod_logs = given_pod_logs
@@ -115,7 +115,7 @@ module Kubetailrb
           assert_output(pod_logs) { reader.read }
         end
 
-        it 'should get pod logs in stream if given 3 last nb lines and are watched and raw disabled and verbose mode' do
+        it 'should get pod logs in stream if given 3 last nb lines & are watched & raw disabled & display names' do
           reader = K8sPodReader.new(
             k8s_client: @k8s_client,
             pod_name: POD_NAME,
@@ -125,7 +125,7 @@ module Kubetailrb
               last_nb_lines: 3,
               follow: true,
               raw: false,
-              verbose: true
+              display_names: true
             )
           )
 

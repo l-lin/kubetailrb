@@ -96,7 +96,7 @@ module Kubetailrb
                       Kubetailrb::Formatter::JsonFormatter.new
                     end
 
-        if opts.verbose?
+        if opts.display_names?
           formatter = Kubetailrb::Formatter::PodMetadataFormatter.new(
             pod_name,
             container_name, formatter

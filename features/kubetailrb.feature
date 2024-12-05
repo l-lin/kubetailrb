@@ -9,15 +9,15 @@ Usage:
   kubetailrb pod-query [flags]
 
 Flags:
-  -v, --version   Display version.
-  -h, --help      Display help.
-      --tail      The number of lines from the end of the logs to show. Defaults to 10.
-  -f, --follow    Output appended data as the file grows.
-      --file      Display file content.
-  -r, --raw       Only display pod logs, without any special formatting.
-      --verbose   Display pod and container names.
-  -n, --namespace Kubernetes namespace to use.
-  -c, --container Container name when multiple containers in pod. Default to '.'.
+  -v, --version       Display version.
+  -h, --help          Display help.
+      --tail          The number of lines from the end of the logs to show. Defaults to 10.
+  -f, --follow        Output appended data as the file grows.
+      --file          Display file content.
+  -r, --raw           Only display pod logs, without any special formatting.
+      --display-names Display pod and container names.
+  -n, --namespace     Kubernetes namespace to use.
+  -c, --container     Container name when multiple containers in pod. Default to '.'.
 """
 
   Scenario: No argument
@@ -30,15 +30,15 @@ Usage:
   kubetailrb pod-query [flags]
 
 Flags:
-  -v, --version   Display version.
-  -h, --help      Display help.
-      --tail      The number of lines from the end of the logs to show. Defaults to 10.
-  -f, --follow    Output appended data as the file grows.
-      --file      Display file content.
-  -r, --raw       Only display pod logs, without any special formatting.
-      --verbose   Display pod and container names.
-  -n, --namespace Kubernetes namespace to use.
-  -c, --container Container name when multiple containers in pod. Default to '.'.
+  -v, --version       Display version.
+  -h, --help          Display help.
+      --tail          The number of lines from the end of the logs to show. Defaults to 10.
+  -f, --follow        Output appended data as the file grows.
+      --file          Display file content.
+  -r, --raw           Only display pod logs, without any special formatting.
+      --display-names Display pod and container names.
+  -n, --namespace     Kubernetes namespace to use.
+  -c, --container     Container name when multiple containers in pod. Default to '.'.
 """
 
   Scenario: Display version
