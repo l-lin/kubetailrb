@@ -17,6 +17,7 @@ module Kubetailrb
       DISPLAY_NAMES_FLAG = '--display-names'
 
       CONTAINER_FLAGS = %w[-c --container].freeze
+      EXCLUDE_FLAGS = %w[-e --exclude].freeze
 
       attr_reader :reader
 
@@ -42,7 +43,8 @@ module Kubetailrb
               last_nb_lines: parse_nb_lines(*args),
               follow: parse_follow(*args),
               raw: parse_raw(*args),
-              display_names: parse_display_names(*args)
+              display_names: parse_display_names(*args),
+              exclude: parse_exclude(*args)
             )
           )
         end
@@ -128,6 +130,27 @@ module Kubetailrb
         def parse_display_names(*args)
           args.include?(DISPLAY_NAMES_FLAG)
         end
+
+        #
+        # Parse log exclusion from arguments provided in the CLI, e.g.
+        #
+        #   kubetailrb some-pod --exclude access-logs,dd-logs
+        #
+        # will return [access-logs, dd-logs].
+        #
+        # Will raise `MissingExcludeValueError` if the value is not provided:
+        #
+        #   kubetailrb some-pod --exclude
+        #
+        def parse_exclude(*args)
+          return [] unless args.any? { |arg| EXCLUDE_FLAGS.include?(arg) }
+
+          index = args.find_index { |arg| EXCLUDE_FLAGS.include?(arg) }.to_i
+
+          raise MissingExcludeValueError, "Missing #{EXCLUDE_FLAGS} value." if args[index + 1].nil?
+
+          args[index + 1].split(',')
+        end
       end
     end
 
@@ -138,6 +161,9 @@ module Kubetailrb
     end
 
     class MissingContainerQueryValueError < RuntimeError
+    end
+
+    class MissingExcludeValueError < RuntimeError
     end
 
     class InvalidNbLinesValueError < RuntimeError

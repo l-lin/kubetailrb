@@ -18,10 +18,19 @@ module Kubetailrb
           refute actual.reader.opts.follow?
           refute actual.reader.opts.raw?
           refute actual.reader.opts.display_names?
+          assert_empty actual.reader.opts.exclude
         end
 
         it 'should return k8s command with custom last nb lines if all flags customized' do
-          args = %w[some-pod --tail 3 --follow --raw --namespace some-namespace --display-names]
+          args = %w[
+            some-pod
+            --tail 3
+            --follow
+            --raw
+            --namespace some-namespace
+            --display-names
+            --exclude access-logs,dd-logs
+          ]
 
           actual = K8s.create(*args)
 
@@ -32,6 +41,7 @@ module Kubetailrb
           assert actual.reader.opts.follow?
           assert actual.reader.opts.raw?
           assert actual.reader.opts.display_names?
+          assert_equal %w[access-logs dd-logs], actual.reader.opts.exclude
         end
 
         it 'should return k8s command with custom last nb lines if `-f` and `-n` flags' do

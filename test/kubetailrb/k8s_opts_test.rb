@@ -15,7 +15,8 @@ module Kubetailrb
               last_nb_lines: 10,
               follow: false,
               raw: false,
-              display_names: false
+              display_names: false,
+              exclude: []
             )
           end
 
@@ -31,7 +32,8 @@ module Kubetailrb
               last_nb_lines: invalid_last_nb_lines,
               follow: false,
               raw: false,
-              display_names: false
+              display_names: false,
+              exclude: []
             )
           end
 
@@ -47,7 +49,8 @@ module Kubetailrb
               last_nb_lines: 10,
               follow: follow,
               raw: false,
-              display_names: false
+              display_names: false,
+              exclude: []
             )
           end
 
@@ -63,7 +66,8 @@ module Kubetailrb
               last_nb_lines: 10,
               follow: false,
               raw: invalid_raw,
-              display_names: false
+              display_names: false,
+              exclude: []
             )
           end
 
@@ -79,12 +83,28 @@ module Kubetailrb
               last_nb_lines: 10,
               follow: false,
               raw: false,
-              display_names: invalid
+              display_names: invalid,
+              exclude: []
             )
           end
 
           assert_equal "Invalid display names: #{invalid}.", actual.message
         end
+      end
+
+      it 'should raise an error if exclude is invalid' do
+        actual = assert_raises(ArgumentError) do
+          K8sOpts.new(
+            namespace: NAMESPACE,
+            last_nb_lines: 10,
+            follow: false,
+            raw: false,
+            display_names: true,
+            exclude: nil
+          )
+        end
+
+        assert_equal 'Exclude not set', actual.message
       end
 
       def given_invalid_string

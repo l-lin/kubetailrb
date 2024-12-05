@@ -21,7 +21,8 @@ module Kubetailrb
                   last_nb_lines: 10,
                   follow: false,
                   raw: false,
-                  display_names: false
+                  display_names: false,
+                  exclude: []
                 )
               )
             end
@@ -41,7 +42,8 @@ module Kubetailrb
                   last_nb_lines: 10,
                   follow: false,
                   raw: false,
-                  display_names: false
+                  display_names: false,
+                  exclude: []
                 )
               )
             end
@@ -75,7 +77,8 @@ module Kubetailrb
               last_nb_lines: 3,
               follow: false,
               raw: false,
-              display_names: false
+              display_names: false,
+              exclude: []
             )
           )
 
@@ -101,7 +104,8 @@ module Kubetailrb
               last_nb_lines: 3,
               follow: false,
               raw: false,
-              display_names: true
+              display_names: true,
+              exclude: []
             )
           )
 
@@ -130,7 +134,8 @@ module Kubetailrb
               last_nb_lines: 3,
               follow: false,
               raw: false,
-              display_names: true
+              display_names: true,
+              exclude: []
             )
           )
 
@@ -159,7 +164,8 @@ module Kubetailrb
               last_nb_lines: 3,
               follow: false,
               raw: false,
-              display_names: true
+              display_names: true,
+              exclude: []
             )
           )
 
@@ -185,7 +191,8 @@ module Kubetailrb
               last_nb_lines: 3,
               follow: false,
               raw: true,
-              display_names: false
+              display_names: false,
+              exclude: []
             )
           )
 
@@ -216,7 +223,8 @@ module Kubetailrb
               last_nb_lines: 3,
               follow: true,
               raw: true,
-              display_names: false
+              display_names: false,
+              exclude: []
             )
           )
 

@@ -21,7 +21,8 @@ module Kubetailrb
                   last_nb_lines: 3,
                   follow: false,
                   raw: false,
-                  display_names: false
+                  display_names: false,
+                  exclude: []
                 )
               )
             end
@@ -41,7 +42,8 @@ module Kubetailrb
                   last_nb_lines: 3,
                   follow: false,
                   raw: false,
-                  display_names: false
+                  display_names: false,
+                  exclude: []
                 )
               )
             end
@@ -84,7 +86,8 @@ module Kubetailrb
               last_nb_lines: 3,
               follow: false,
               raw: false,
-              display_names: true
+              display_names: true,
+              exclude: []
             )
           )
           given_pod_logs
@@ -107,7 +110,8 @@ module Kubetailrb
               last_nb_lines: 3,
               follow: false,
               raw: true,
-              display_names: false
+              display_names: false,
+              exclude: []
             )
           )
           pod_logs = given_pod_logs
@@ -125,7 +129,8 @@ module Kubetailrb
               last_nb_lines: 3,
               follow: true,
               raw: false,
-              display_names: true
+              display_names: true,
+              exclude: []
             )
           )
 
@@ -149,6 +154,30 @@ module Kubetailrb
           assert_output(expected) { reader.read }
         end
 
+        it 'should get only pod logs if access log excluded' do
+          reader = K8sPodReader.new(
+            k8s_client: @k8s_client,
+            pod_name: POD_NAME,
+            container_name: CONTAINER_NAME,
+            opts: K8sOpts.new(
+              namespace: NAMESPACE,
+              last_nb_lines: 10,
+              follow: false,
+              raw: false,
+              display_names: false,
+              exclude: ['access-logs']
+            )
+          )
+          given_pod_access_mixed_in_logs
+
+          expected = <<~EXPECTED
+            log 1
+            log 2
+            log 3
+          EXPECTED
+          assert_output(expected) { reader.read }
+        end
+
         def given_pod_list_found
           stub_core_api_list
           stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods")
@@ -162,6 +191,18 @@ module Kubetailrb
             log 3
           PODLOGS
           stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods/#{POD_NAME}/log?container=#{CONTAINER_NAME}&tailLines=3")
+            .to_return(status: 200, body: pod_logs)
+          pod_logs
+        end
+
+        def given_pod_access_mixed_in_logs
+          pod_logs = <<~PODLOGS
+            log 1
+            log 2
+            {"@timestamp": "2024-11-09T19:42:55.088Z", "http.response.status_code": 200, "http.request.method": "GET", "url.path": "/foobar"}
+            log 3
+          PODLOGS
+          stub_request(:get, "http://localhost:8080/api/v1/namespaces/#{NAMESPACE}/pods/#{POD_NAME}/log?container=#{CONTAINER_NAME}&tailLines=10")
             .to_return(status: 200, body: pod_logs)
           pod_logs
         end

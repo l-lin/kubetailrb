@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'kubetailrb/formatter/no_op_formatter'
-require 'kubetailrb/formatter/pod_metadata_formatter'
+require 'test_helper'
 
 module Kubetailrb
   module Formatter

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'kubetailrb/validated'
+require 'kubetailrb/filter/log_filter'
 require 'kubetailrb/formatter/json_formatter'
 require 'kubetailrb/formatter/no_op_formatter'
 require 'kubetailrb/formatter/pod_metadata_formatter'
@@ -22,6 +23,7 @@ module Kubetailrb
         @pod_name = pod_name
         @container_name = container_name
         @formatter = create_formatter(opts, pod_name, container_name)
+        @filter = Kubetailrb::Filter::LogFilter.create(opts.exclude)
         @opts = opts
       end
 
@@ -63,7 +65,7 @@ module Kubetailrb
           return
         end
 
-        puts @formatter.format(logs)
+        puts @formatter.format(logs) if @filter.test(logs)
         $stdout.flush
       end
 
