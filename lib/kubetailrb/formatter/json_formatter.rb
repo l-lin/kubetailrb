@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
+require 'kubetailrb/painter'
+
 module Kubetailrb
   module Formatter
     # Format JSON to human readable.
     class JsonFormatter
+      include Painter
+
       def format(log)
         json = JSON.parse(log)
 
@@ -39,9 +43,9 @@ module Kubetailrb
       def http_status_code(json)
         code = json['http.response.status_code'] || json['http_status']
 
-        return "#{blue(" I ")}[#{code}] " if code >= 200 && code < 400
-        return "#{yellow(" W ")}[#{code}] " if code >= 400 && code < 500
-        return "#{red(" E ")}[#{code}] " if code >= 500
+        return " #{highlight_blue(" I ")} [#{code}] " if code >= 200 && code < 400
+        return " #{highlight_yellow(" W ")} [#{code}] " if code >= 400 && code < 500
+        return " #{highlight_red(" E ")} [#{code}] " if code >= 500
 
         " #{code} "
       end
@@ -49,9 +53,9 @@ module Kubetailrb
       def log_level(json)
         level = json['log.level'] || json.dig('log', 'level')
         return ' ' if level.nil? || level.strip.empty?
-        return blue(' I ') if level == 'INFO'
-        return yellow(' W ') if level == 'WARN'
-        return red(' E ') if level == 'ERROR'
+        return " #{highlight_blue(" I ")} " if level == 'INFO'
+        return " #{highlight_yellow(" W ")} " if level == 'WARN'
+        return " #{highlight_red(" E ")} " if level == 'ERROR'
 
         " #{level} "
       end
@@ -62,22 +66,6 @@ module Kubetailrb
 
       def url_path(json)
         json['url.path'] || json['http_path']
-      end
-
-      def colorize(text, color_code)
-        " \e[#{color_code}m#{text}\e[0m "
-      end
-
-      def blue(text)
-        colorize(text, '1;30;44')
-      end
-
-      def yellow(text)
-        colorize(text, '1;30;43')
-      end
-
-      def red(text)
-        colorize(text, '1;30;41')
       end
     end
   end

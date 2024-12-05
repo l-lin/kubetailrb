@@ -11,6 +11,7 @@ module Kubetailrb
     class K8sPodsReader
       include Validated
       include WithK8sClient
+      include Painter
 
       attr_reader :pod_query, :container_query, :opts
 
@@ -72,6 +73,7 @@ module Kubetailrb
           next unless applicable_pod?(notice.object)
 
           on_new_pod_event notice if new_pod_event?(notice)
+          on_deleted_pod_event notice if deleted_pod_event?(notice)
         end
       end
 
@@ -87,7 +89,7 @@ module Kubetailrb
         notice.type == 'ADDED' && notice.object.kind == 'Pod'
       end
 
-      def on_new_pod_event(notice)
+      def on_new_pod_event(notice) # rubocop:disable Metrics/AbcSize
         # NOTE: We are in another thread (are we?), so no sense to use
         # 'Thread.join' here.
 
@@ -96,13 +98,25 @@ module Kubetailrb
 
           # NOTE: How much memory does a Ruby Thread takes? Can we spawn hundreds
           # to thoudsands of Threads without issue?
-          puts "+ #{notice.object.metadata.name}/#{container.name}"
+          puts blue("+ #{notice.object.metadata.name}/#{container.name}")
           start_reading_pod_logs(notice.object.metadata.name, container.name)
         end
       end
 
       def start_reading_pod_logs(pod_name, container_name)
         Thread.new { create_reader(pod_name, container_name).read }
+      end
+
+      def deleted_pod_event?(notice)
+        notice.type == 'DELETED' && notice.object.kind == 'Pod'
+      end
+
+      def on_deleted_pod_event(notice)
+        notice.object.spec.containers.map do |container|
+          next unless applicable_container?(container.name)
+
+          puts red("- #{notice.object.metadata.name}/#{container.name}")
+        end
       end
     end
   end

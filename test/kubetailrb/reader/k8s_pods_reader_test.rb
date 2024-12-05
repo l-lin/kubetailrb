@@ -313,7 +313,8 @@ module Kubetailrb
           # In practice, new pods are created afterwards, so their logs are
           # displayed afterwards/
           expected = <<~EXPECTED
-            + #{new_pod_name}/#{new_container_name}
+            \e[34m+ #{new_pod_name}/#{new_container_name}\e[0m
+            \e[31m- #{new_pod_name}/#{new_container_name}\e[0m
             log 1 from #{new_pod_name}
             log 2 from #{new_pod_name}
             log 3 from #{new_pod_name}
