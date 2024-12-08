@@ -5,16 +5,6 @@
 
 > Tail your Kubernetes pod logs at the same time.
 
-> [!NOTE]
-> This project is a pet project I used to learn the [Ruby programming language](https://www.ruby-lang.org/en/).
-> So you might find lots of my [personal notes](./journey_log.md) in the codebase.
->
-> If you want to have something that works, please look at the following
-> projects that were used as inspirations instead:
->
-> - https://github.com/stern/stern
-> - https://github.com/johanhaleby/kubetail
-
 ![kubetailrb](./kubetailrb.png)
 
 ## Installation
@@ -51,7 +41,7 @@ kubetailrb 'clock-json' -n sandbox -f
 kubetailrb '^clock(?!-json)' -n sandbox -f
 
 # you can also filter the containers using regex on the container names
-kubetailrb 'clock' -n sandbox -f -c 'json'
+kubetailrb 'clock' -n sandbox -f -c 'my-container'
 ```
 
 ## Development
@@ -93,6 +83,15 @@ Then execute the script:
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/l-lin/kubetailrb.
+
+## Note
+
+This project is a pet project I used to learn the [Ruby programming language](https://www.ruby-lang.org/en/).
+So you might find lots of my [personal notes](./journey_log.md) in the codebase.
+
+If you want to have something that is more complete, please look at
+[stern](https://github.com/stern/stern) project that was used as inspirations
+instead.
 
 ## License
 
