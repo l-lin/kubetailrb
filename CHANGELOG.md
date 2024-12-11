@@ -1,3 +1,8 @@
+## [0.3.0] - 2024-12-11
+
+- rename `--exclude` flag to `--excludes`
+- add `--mdcs` flag to include specific MDCs
+
 ## [0.2.0] - 2024-12-05
 
 - remove `--pretty` flag

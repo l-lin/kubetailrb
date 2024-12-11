@@ -42,6 +42,16 @@ kubetailrb '^clock(?!-json)' -n sandbox -f
 
 # you can also filter the containers using regex on the container names
 kubetailrb 'clock' -n sandbox -f -c 'my-container'
+
+# you can exclude access logs
+kubetailrb 'clock' -n sandbox -f --excludes access-logs
+# or Datadog logs
+kubetailrb 'clock' -n sandbox -f --excludes dd-logs
+# or both
+kubetailrb 'clock' -n sandbox -f --excludes access-logs,dd-logs
+
+# you can include your MDCs by adding your MDC names separated by a comma
+kubetailrb 'clock' -n sandbox -f --mdcs thread.name,service.version
 ```
 
 ## Development

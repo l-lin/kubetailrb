@@ -47,7 +47,7 @@ Flags:
 
   Scenario: Display version
     When I run `kubetailrb --version`
-    Then the output should contain "0.2.0"
+    Then the output should contain "0.3.0"
 
   # NOTE: Tests are not executed at project root folder, but under 'tmp/aruba'!
   Scenario: Display file content
