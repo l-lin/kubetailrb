@@ -18,7 +18,8 @@ module Kubetailrb
           refute actual.reader.opts.follow?
           refute actual.reader.opts.raw?
           refute actual.reader.opts.display_names?
-          assert_empty actual.reader.opts.exclude
+          assert_empty actual.reader.opts.excludes
+          assert_empty actual.reader.opts.mdcs
         end
 
         it 'should return k8s command with custom last nb lines if all flags customized' do
@@ -29,8 +30,8 @@ module Kubetailrb
             --raw
             --namespace some-namespace
             --display-names
-            --exclude access-logs,dd-logs
-            --mdc account.id,thread.name
+            --excludes access-logs,dd-logs
+            --mdcs account.id,thread.name
           ]
 
           actual = K8s.create(*args)
@@ -42,7 +43,7 @@ module Kubetailrb
           assert actual.reader.opts.follow?
           assert actual.reader.opts.raw?
           assert actual.reader.opts.display_names?
-          assert_equal %w[access-logs dd-logs], actual.reader.opts.exclude
+          assert_equal %w[access-logs dd-logs], actual.reader.opts.excludes
           assert_equal %w[account.id thread.name], actual.reader.opts.mdcs
         end
 
@@ -99,12 +100,20 @@ module Kubetailrb
           assert_equal 'Missing ["-c", "--container"] value.', actual.message
         end
 
-        it 'should raise ArgumentError if no value given for `--mdc` flag value' do
-          args = %w[some-pod --mdc]
+        it 'should raise ArgumentError if no value given for `--excludes` flag value' do
+          args = %w[some-pod --excludes]
 
           actual = assert_raises(ArgumentError) { K8s.create(*args) }
 
-          assert_equal 'Missing ["-m", "--mdc"] value.', actual.message
+          assert_equal 'Missing ["-e", "--excludes"] value.', actual.message
+        end
+
+        it 'should raise ArgumentError if no value given for `--mdcs` flag value' do
+          args = %w[some-pod --mdcs]
+
+          actual = assert_raises(ArgumentError) { K8s.create(*args) }
+
+          assert_equal 'Missing ["-m", "--mdcs"] value.', actual.message
         end
       end
     end

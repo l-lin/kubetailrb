@@ -18,8 +18,8 @@ Flags:
       --display-names Display pod and container names.
   -n, --namespace     Kubernetes namespace to use.
   -c, --container     Container name when multiple containers in pod. Default to '.'.
-  -e, --exclude       Exclude types of log, separated by a comma. Supporting only 'access-logs' and 'dd-logs'
-  -m, --mdc           Include MDCs if present in the JSON log, separated by a comma. E.g. 'account.id,thread.name'
+  -e, --excludes      Exclude types of log, separated by a comma. Supporting only 'access-logs' and 'dd-logs'.
+  -m, --mdcs          Include MDCs if present in the JSON log, separated by a comma. E.g. 'account.id,thread.name'.
 """
 
   Scenario: No argument
@@ -41,8 +41,8 @@ Flags:
       --display-names Display pod and container names.
   -n, --namespace     Kubernetes namespace to use.
   -c, --container     Container name when multiple containers in pod. Default to '.'.
-  -e, --exclude       Exclude types of log, separated by a comma. Supporting only 'access-logs' and 'dd-logs'
-  -m, --mdc           Include MDCs if present in the JSON log, separated by a comma. E.g. 'account.id,thread.name'
+  -e, --excludes      Exclude types of log, separated by a comma. Supporting only 'access-logs' and 'dd-logs'.
+  -m, --mdcs          Include MDCs if present in the JSON log, separated by a comma. E.g. 'account.id,thread.name'.
 """
 
   Scenario: Display version

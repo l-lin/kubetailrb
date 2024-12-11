@@ -16,7 +16,7 @@ module Kubetailrb
               follow: false,
               raw: false,
               display_names: false,
-              exclude: [],
+              excludes: [],
               mdcs: []
             )
           end
@@ -34,7 +34,7 @@ module Kubetailrb
               follow: false,
               raw: false,
               display_names: false,
-              exclude: [],
+              excludes: [],
               mdcs: []
             )
           end
@@ -52,7 +52,7 @@ module Kubetailrb
               follow: follow,
               raw: false,
               display_names: false,
-              exclude: [],
+              excludes: [],
               mdcs: []
             )
           end
@@ -70,7 +70,7 @@ module Kubetailrb
               follow: false,
               raw: invalid_raw,
               display_names: false,
-              exclude: [],
+              excludes: [],
               mdcs: []
             )
           end
@@ -88,7 +88,7 @@ module Kubetailrb
               follow: false,
               raw: false,
               display_names: invalid,
-              exclude: [],
+              excludes: [],
               mdcs: []
             )
           end
@@ -97,7 +97,7 @@ module Kubetailrb
         end
       end
 
-      it 'should raise an error if exclude is invalid' do
+      it 'should raise an error if excludes is invalid' do
         actual = assert_raises(ArgumentError) do
           K8sOpts.new(
             namespace: NAMESPACE,
@@ -105,12 +105,12 @@ module Kubetailrb
             follow: false,
             raw: false,
             display_names: true,
-            exclude: nil,
+            excludes: nil,
             mdcs: []
           )
         end
 
-        assert_equal 'Exclude not set.', actual.message
+        assert_equal 'Excludes not set.', actual.message
       end
 
       it 'should raise an error if mdcs is invalid' do
@@ -121,7 +121,7 @@ module Kubetailrb
             follow: false,
             raw: false,
             display_names: true,
-            exclude: [],
+            excludes: [],
             mdcs: nil
           )
         end

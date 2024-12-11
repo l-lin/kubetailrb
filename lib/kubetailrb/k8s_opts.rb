@@ -7,15 +7,15 @@ module Kubetailrb
   class K8sOpts
     include Validated
 
-    attr_reader :namespace, :last_nb_lines, :exclude, :mdcs
+    attr_reader :namespace, :last_nb_lines, :excludes, :mdcs
 
-    def initialize(namespace:, last_nb_lines:, follow:, raw:, display_names:, exclude:, mdcs:) # rubocop:disable Metrics/ParameterLists
+    def initialize(namespace:, last_nb_lines:, follow:, raw:, display_names:, excludes:, mdcs:) # rubocop:disable Metrics/ParameterLists
       @namespace = namespace
       @last_nb_lines = last_nb_lines
       @follow = follow
       @raw = raw
       @display_names = display_names
-      @exclude = exclude
+      @excludes = excludes
       @mdcs = mdcs
 
       validate
@@ -41,7 +41,7 @@ module Kubetailrb
       validate_boolean @follow, "Invalid follow: #{@follow}."
       validate_boolean @raw, "Invalid raw: #{@raw}."
       validate_boolean @display_names, "Invalid display names: #{@display_names}."
-      raise_if_nil @exclude, 'Exclude not set.'
+      raise_if_nil @excludes, 'Excludes not set.'
       raise_if_nil @mdcs, 'MDCs not set.'
     end
   end

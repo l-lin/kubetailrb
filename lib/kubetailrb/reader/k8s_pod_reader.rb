@@ -23,7 +23,7 @@ module Kubetailrb
         @pod_name = pod_name
         @container_name = container_name
         @formatter = create_formatter(opts, pod_name, container_name)
-        @filter = Kubetailrb::Filter::LogFilter.create(opts.exclude)
+        @filter = Kubetailrb::Filter::LogFilter.create(opts.excludes)
         @opts = opts
       end
 

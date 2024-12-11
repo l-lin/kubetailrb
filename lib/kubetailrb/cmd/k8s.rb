@@ -17,9 +17,9 @@ module Kubetailrb
       DISPLAY_NAMES_FLAG = '--display-names'
 
       CONTAINER_FLAGS = %w[-c --container].freeze
-      EXCLUDE_FLAGS = %w[-e --exclude].freeze
+      EXCLUDES_FLAGS = %w[-e --excludes].freeze
 
-      MDC_FLAGS = %w[-m --mdc].freeze
+      MDCS_FLAGS = %w[-m --mdcs].freeze
 
       attr_reader :reader
 
@@ -46,8 +46,8 @@ module Kubetailrb
               follow: parse_follow(*args),
               raw: parse_raw(*args),
               display_names: parse_display_names(*args),
-              exclude: parse_exclude(*args),
-              mdcs: parse_mdc(*args)
+              excludes: parse_excludes(*args),
+              mdcs: parse_mdcs(*args)
             )
           )
         end
@@ -145,12 +145,12 @@ module Kubetailrb
         #
         #   kubetailrb some-pod --exclude
         #
-        def parse_exclude(*args)
-          return [] unless args.any? { |arg| EXCLUDE_FLAGS.include?(arg) }
+        def parse_excludes(*args)
+          return [] unless args.any? { |arg| EXCLUDES_FLAGS.include?(arg) }
 
-          index = args.find_index { |arg| EXCLUDE_FLAGS.include?(arg) }.to_i
+          index = args.find_index { |arg| EXCLUDES_FLAGS.include?(arg) }.to_i
 
-          raise ArgumentError, "Missing #{EXCLUDE_FLAGS} value." if args[index + 1].nil?
+          raise ArgumentError, "Missing #{EXCLUDES_FLAGS} value." if args[index + 1].nil?
 
           args[index + 1].split(',')
         end
@@ -166,12 +166,12 @@ module Kubetailrb
         #
         #   kubetailrb some-pod --mdc
         #
-        def parse_mdc(*args)
-          return [] unless args.any? { |arg| MDC_FLAGS.include?(arg) }
+        def parse_mdcs(*args)
+          return [] unless args.any? { |arg| MDCS_FLAGS.include?(arg) }
 
-          index = args.find_index { |arg| MDC_FLAGS.include?(arg) }.to_i
+          index = args.find_index { |arg| MDCS_FLAGS.include?(arg) }.to_i
 
-          raise ArgumentError, "Missing #{MDC_FLAGS} value." if args[index + 1].nil?
+          raise ArgumentError, "Missing #{MDCS_FLAGS} value." if args[index + 1].nil?
 
           args[index + 1].split(',')
         end
