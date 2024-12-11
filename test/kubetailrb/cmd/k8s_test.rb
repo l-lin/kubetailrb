@@ -30,6 +30,7 @@ module Kubetailrb
             --namespace some-namespace
             --display-names
             --exclude access-logs,dd-logs
+            --mdc account.id,thread.name
           ]
 
           actual = K8s.create(*args)
@@ -42,6 +43,7 @@ module Kubetailrb
           assert actual.reader.opts.raw?
           assert actual.reader.opts.display_names?
           assert_equal %w[access-logs dd-logs], actual.reader.opts.exclude
+          assert_equal %w[account.id thread.name], actual.reader.opts.mdcs
         end
 
         it 'should return k8s command with custom last nb lines if `-f` and `-n` flags' do
@@ -57,44 +59,52 @@ module Kubetailrb
           refute actual.reader.opts.raw?
         end
 
-        it 'should raise InvalidNbLinesValueError if given an invalid `--tail` flag value' do
+        it 'should raise ArgumentError if given an invalid `--tail` flag value' do
           args = %w[some-pod --tail invalid]
 
-          actual = assert_raises(InvalidNbLinesValueError) { K8s.create(*args) }
+          actual = assert_raises(ArgumentError) { K8s.create(*args) }
 
           assert_equal 'Invalid --tail value: invalid.', actual.message
         end
 
-        it 'should raise MissingNbLinesValueError if given a `--tail` flag with no value' do
+        it 'should raise ArgumentError if given a `--tail` flag with no value' do
           args = %w[some-pod --tail]
 
-          actual = assert_raises(MissingNbLinesValueError) { K8s.create(*args) }
+          actual = assert_raises(ArgumentError) { K8s.create(*args) }
 
           assert_equal 'Missing --tail value.', actual.message
         end
 
-        it 'should raise MissingNamespaceValueError if no value given for `--namespace` flag value' do
+        it 'should raise ArgumentError if no value given for `--namespace` flag value' do
           args = %w[some-pod --namespace]
 
-          actual = assert_raises(MissingNamespaceValueError) { K8s.create(*args) }
+          actual = assert_raises(ArgumentError) { K8s.create(*args) }
 
           assert_equal 'Missing ["-n", "--namespace"] value.', actual.message
         end
 
-        it 'should raise MissingNamespaceValueError if no value given for `-n` flag value' do
+        it 'should raise ArgumentError if no value given for `-n` flag value' do
           args = %w[some-pod -n]
 
-          actual = assert_raises(MissingNamespaceValueError) { K8s.create(*args) }
+          actual = assert_raises(ArgumentError) { K8s.create(*args) }
 
           assert_equal 'Missing ["-n", "--namespace"] value.', actual.message
         end
 
-        it 'should raise MissingContainerQueryValueError if no value given for `--container` flag value' do
+        it 'should raise ArgumentError if no value given for `--container` flag value' do
           args = %w[some-pod --container]
 
-          actual = assert_raises(MissingContainerQueryValueError) { K8s.create(*args) }
+          actual = assert_raises(ArgumentError) { K8s.create(*args) }
 
           assert_equal 'Missing ["-c", "--container"] value.', actual.message
+        end
+
+        it 'should raise ArgumentError if no value given for `--mdc` flag value' do
+          args = %w[some-pod --mdc]
+
+          actual = assert_raises(ArgumentError) { K8s.create(*args) }
+
+          assert_equal 'Missing ["-m", "--mdc"] value.', actual.message
         end
       end
     end

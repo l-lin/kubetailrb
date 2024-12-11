@@ -5,9 +5,18 @@ require 'test_helper'
 module Kubetailrb
   module Formatter
     class JsonFormatterTest < Minitest::Test
+      describe '.new' do
+        it 'should raise an error if mdcs is invalid' do
+          actual = assert_raises(ArgumentError) do
+            JsonFormatter.new(nil)
+          end
+
+          assert_equal 'MDCs not set.', actual.message
+        end
+      end
       describe '.format' do
         before :each do
-          @formatter = JsonFormatter.new
+          @formatter = JsonFormatter.new(['account.id'])
         end
 
         it 'should format into a human readable log if given an application log in json format' do
@@ -134,6 +143,24 @@ module Kubetailrb
           actual = @formatter.format json
 
           expected = "2024-11-09T19:42:55.088Z \e[1;30;44m I \e[0m [200] GET /foobar"
+          assert_equal expected, actual
+        end
+
+        it 'should display the mdc if present' do
+          json = <<~JSON
+            {
+              "@timestamp": "2024-11-09T19:42:55.088Z",
+              "log.level": "INFO",
+              "message": "Time is 2024-11-09T19:42:55.088Z",
+              "account.id": 1234
+            }
+          JSON
+
+          actual = @formatter.format json
+
+          expected = <<~EXPECTED.chomp
+            2024-11-09T19:42:55.088Z \e[1;30;44m I \e[0m \e[36maccount.id=1234\e[0m Time is 2024-11-09T19:42:55.088Z
+          EXPECTED
           assert_equal expected, actual
         end
       end

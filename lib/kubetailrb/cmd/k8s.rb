@@ -19,6 +19,8 @@ module Kubetailrb
       CONTAINER_FLAGS = %w[-c --container].freeze
       EXCLUDE_FLAGS = %w[-e --exclude].freeze
 
+      MDC_FLAGS = %w[-m --mdc].freeze
+
       attr_reader :reader
 
       def initialize(pod_query:, container_query:, opts:)
@@ -44,7 +46,8 @@ module Kubetailrb
               follow: parse_follow(*args),
               raw: parse_raw(*args),
               display_names: parse_display_names(*args),
-              exclude: parse_exclude(*args)
+              exclude: parse_exclude(*args),
+              mdcs: parse_mdc(*args)
             )
           )
         end
@@ -65,7 +68,7 @@ module Kubetailrb
         #
         # will return 'sandbox'.
         #
-        # Will raise `MissingNamespaceValueError` if the value is not provided:
+        # Will raise `ArgumentError` if the value is not provided:
         #
         #   kubetailrb some-pod -n
         #
@@ -74,7 +77,7 @@ module Kubetailrb
 
           index = args.find_index { |arg| NAMESPACE_FLAGS.include?(arg) }.to_i
 
-          raise MissingNamespaceValueError, "Missing #{NAMESPACE_FLAGS} value." if args[index + 1].nil?
+          raise ArgumentError, "Missing #{NAMESPACE_FLAGS} value." if args[index + 1].nil?
 
           args[index + 1]
         end
@@ -86,11 +89,11 @@ module Kubetailrb
         #
         # will return 3.
         #
-        # Will raise `MissingNbLinesValueError` if the value is not provided:
+        # Will raise `ArgumentError` if the value is not provided:
         #
         #   kubetailrb some-pod --tail
         #
-        # Will raise `InvalidNbLinesValueError` if the provided value is not a
+        # Will raise `ArgumentError` if the provided value is not a
         # number:
         #
         #   kubetailrb some-pod --tail some-string
@@ -100,11 +103,11 @@ module Kubetailrb
 
           index = args.find_index { |arg| arg == TAIL_FLAG }.to_i
 
-          raise MissingNbLinesValueError, "Missing #{TAIL_FLAG} value." if args[index + 1].nil?
+          raise ArgumentError, "Missing #{TAIL_FLAG} value." if args[index + 1].nil?
 
           last_nb_lines = args[index + 1].to_i
 
-          raise InvalidNbLinesValueError, "Invalid #{TAIL_FLAG} value: #{args[index + 1]}." if last_nb_lines.zero?
+          raise ArgumentError, "Invalid #{TAIL_FLAG} value: #{args[index + 1]}." if last_nb_lines.zero?
 
           last_nb_lines
         end
@@ -122,7 +125,7 @@ module Kubetailrb
 
           index = args.find_index { |arg| CONTAINER_FLAGS.include?(arg) }.to_i
 
-          raise MissingContainerQueryValueError, "Missing #{CONTAINER_FLAGS} value." if args[index + 1].nil?
+          raise ArgumentError, "Missing #{CONTAINER_FLAGS} value." if args[index + 1].nil?
 
           args[index + 1]
         end
@@ -138,7 +141,7 @@ module Kubetailrb
         #
         # will return [access-logs, dd-logs].
         #
-        # Will raise `MissingExcludeValueError` if the value is not provided:
+        # Will raise `ArgumentError` if the value is not provided:
         #
         #   kubetailrb some-pod --exclude
         #
@@ -147,26 +150,32 @@ module Kubetailrb
 
           index = args.find_index { |arg| EXCLUDE_FLAGS.include?(arg) }.to_i
 
-          raise MissingExcludeValueError, "Missing #{EXCLUDE_FLAGS} value." if args[index + 1].nil?
+          raise ArgumentError, "Missing #{EXCLUDE_FLAGS} value." if args[index + 1].nil?
+
+          args[index + 1].split(',')
+        end
+
+        #
+        # Parse MDCs to include from arguments provided in the CLI, e.g.
+        #
+        #   kubetailrb some-pod --mdc account.id,process.thread.name
+        #
+        # will return [account.id, thread.name].
+        #
+        # Will raise `ArgumentError` if the value is not provided:
+        #
+        #   kubetailrb some-pod --mdc
+        #
+        def parse_mdc(*args)
+          return [] unless args.any? { |arg| MDC_FLAGS.include?(arg) }
+
+          index = args.find_index { |arg| MDC_FLAGS.include?(arg) }.to_i
+
+          raise ArgumentError, "Missing #{MDC_FLAGS} value." if args[index + 1].nil?
 
           args[index + 1].split(',')
         end
       end
-    end
-
-    class MissingNbLinesValueError < RuntimeError
-    end
-
-    class MissingNamespaceValueError < RuntimeError
-    end
-
-    class MissingContainerQueryValueError < RuntimeError
-    end
-
-    class MissingExcludeValueError < RuntimeError
-    end
-
-    class InvalidNbLinesValueError < RuntimeError
     end
   end
 end

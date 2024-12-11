@@ -1,12 +1,20 @@
 # frozen_string_literal: true
 
 require 'kubetailrb/painter'
+require 'kubetailrb/validated'
 
 module Kubetailrb
   module Formatter
     # Format JSON to human readable.
     class JsonFormatter
       include Painter
+      include Validated
+
+      def initialize(mdcs)
+        @mdcs = mdcs
+
+        validate
+      end
 
       def format(log)
         json = JSON.parse(log)
@@ -20,16 +28,20 @@ module Kubetailrb
 
       private
 
+      def validate
+        raise_if_nil @mdcs, 'MDCs not set.'
+      end
+
       def access_log?(json)
         json.include?('http.response.status_code') || json.include?('http_status')
       end
 
       def format_access_log(json)
-        "#{json["@timestamp"]}#{http_status_code json}#{http_method json} #{url_path json}"
+        "#{json["@timestamp"]}#{format_http_status_code json}#{http_method json} #{url_path json}"
       end
 
       def format_application_log(json)
-        "#{json["@timestamp"]}#{log_level json}#{json["message"]}#{format_stack_trace json}"
+        "#{json["@timestamp"]}#{format_log_level json}#{format_mdcs json}#{json["message"]}#{format_stack_trace json}"
       end
 
       def format_stack_trace(json)
@@ -40,7 +52,7 @@ module Kubetailrb
         "\n#{stack_trace}"
       end
 
-      def http_status_code(json)
+      def format_http_status_code(json)
         code = json['http.response.status_code'] || json['http_status']
 
         return " #{highlight_blue(" I ")} [#{code}] " if code >= 200 && code < 400
@@ -50,7 +62,7 @@ module Kubetailrb
         " #{code} "
       end
 
-      def log_level(json)
+      def format_log_level(json)
         level = json['log.level'] || json.dig('log', 'level')
         return ' ' if level.nil? || level.strip.empty?
         return " #{highlight_blue(" I ")} " if level == 'INFO'
@@ -66,6 +78,14 @@ module Kubetailrb
 
       def url_path(json)
         json['url.path'] || json['http_path']
+      end
+
+      def format_mdcs(json)
+        result = ''
+        @mdcs.each do |mdc|
+          result += "#{cyan("#{mdc}=#{json[mdc]}")} " if json.include?(mdc)
+        end
+        result.to_s
       end
     end
   end

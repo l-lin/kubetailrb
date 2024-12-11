@@ -22,7 +22,8 @@ module Kubetailrb
                   follow: false,
                   raw: false,
                   display_names: false,
-                  exclude: []
+                  exclude: [],
+                  mdcs: []
                 )
               )
             end
@@ -43,7 +44,8 @@ module Kubetailrb
                   follow: false,
                   raw: false,
                   display_names: false,
-                  exclude: []
+                  exclude: [],
+                  mdcs: []
                 )
               )
             end
@@ -87,7 +89,8 @@ module Kubetailrb
               follow: false,
               raw: false,
               display_names: true,
-              exclude: []
+              exclude: [],
+              mdcs: []
             )
           )
           given_pod_logs
@@ -111,7 +114,8 @@ module Kubetailrb
               follow: false,
               raw: true,
               display_names: false,
-              exclude: []
+              exclude: [],
+              mdcs: []
             )
           )
           pod_logs = given_pod_logs
@@ -130,7 +134,8 @@ module Kubetailrb
               follow: true,
               raw: false,
               display_names: true,
-              exclude: []
+              exclude: [],
+              mdcs: []
             )
           )
 
@@ -165,7 +170,8 @@ module Kubetailrb
               follow: false,
               raw: false,
               display_names: false,
-              exclude: ['access-logs']
+              exclude: ['access-logs'],
+              mdcs: []
             )
           )
           given_pod_access_mixed_in_logs

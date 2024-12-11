@@ -22,7 +22,8 @@ module Kubetailrb
                   follow: false,
                   raw: false,
                   display_names: false,
-                  exclude: []
+                  exclude: [],
+                  mdcs: []
                 )
               )
             end
@@ -43,7 +44,8 @@ module Kubetailrb
                   follow: false,
                   raw: false,
                   display_names: false,
-                  exclude: []
+                  exclude: [],
+                  mdcs: []
                 )
               )
             end
@@ -78,7 +80,8 @@ module Kubetailrb
               follow: false,
               raw: false,
               display_names: false,
-              exclude: []
+              exclude: [],
+              mdcs: []
             )
           )
 
@@ -105,7 +108,8 @@ module Kubetailrb
               follow: false,
               raw: false,
               display_names: true,
-              exclude: []
+              exclude: [],
+              mdcs: []
             )
           )
 
@@ -135,7 +139,8 @@ module Kubetailrb
               follow: false,
               raw: false,
               display_names: true,
-              exclude: []
+              exclude: [],
+              mdcs: []
             )
           )
 
@@ -165,7 +170,8 @@ module Kubetailrb
               follow: false,
               raw: false,
               display_names: true,
-              exclude: []
+              exclude: [],
+              mdcs: []
             )
           )
 
@@ -192,7 +198,8 @@ module Kubetailrb
               follow: false,
               raw: true,
               display_names: false,
-              exclude: []
+              exclude: [],
+              mdcs: []
             )
           )
 
@@ -224,7 +231,8 @@ module Kubetailrb
               follow: true,
               raw: true,
               display_names: false,
-              exclude: []
+              exclude: [],
+              mdcs: []
             )
           )
 

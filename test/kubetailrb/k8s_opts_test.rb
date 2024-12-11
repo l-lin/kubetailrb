@@ -16,7 +16,8 @@ module Kubetailrb
               follow: false,
               raw: false,
               display_names: false,
-              exclude: []
+              exclude: [],
+              mdcs: []
             )
           end
 
@@ -33,7 +34,8 @@ module Kubetailrb
               follow: false,
               raw: false,
               display_names: false,
-              exclude: []
+              exclude: [],
+              mdcs: []
             )
           end
 
@@ -50,7 +52,8 @@ module Kubetailrb
               follow: follow,
               raw: false,
               display_names: false,
-              exclude: []
+              exclude: [],
+              mdcs: []
             )
           end
 
@@ -67,7 +70,8 @@ module Kubetailrb
               follow: false,
               raw: invalid_raw,
               display_names: false,
-              exclude: []
+              exclude: [],
+              mdcs: []
             )
           end
 
@@ -84,7 +88,8 @@ module Kubetailrb
               follow: false,
               raw: false,
               display_names: invalid,
-              exclude: []
+              exclude: [],
+              mdcs: []
             )
           end
 
@@ -100,11 +105,28 @@ module Kubetailrb
             follow: false,
             raw: false,
             display_names: true,
-            exclude: nil
+            exclude: nil,
+            mdcs: []
           )
         end
 
-        assert_equal 'Exclude not set', actual.message
+        assert_equal 'Exclude not set.', actual.message
+      end
+
+      it 'should raise an error if mdcs is invalid' do
+        actual = assert_raises(ArgumentError) do
+          K8sOpts.new(
+            namespace: NAMESPACE,
+            last_nb_lines: 10,
+            follow: false,
+            raw: false,
+            display_names: true,
+            exclude: [],
+            mdcs: nil
+          )
+        end
+
+        assert_equal 'MDCs not set.', actual.message
       end
 
       def given_invalid_string

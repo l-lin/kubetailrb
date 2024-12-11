@@ -95,7 +95,7 @@ module Kubetailrb
         formatter = if opts.raw?
                       Kubetailrb::Formatter::NoOpFormatter.new
                     else
-                      Kubetailrb::Formatter::JsonFormatter.new
+                      Kubetailrb::Formatter::JsonFormatter.new(opts.mdcs)
                     end
 
         if opts.display_names?

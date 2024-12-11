@@ -11,6 +11,10 @@ module Kubetailrb
       colorize(text, '31')
     end
 
+    def cyan(text)
+      colorize(text, '36')
+    end
+
     def highlight_blue(text)
       colorize(text, '1;30;44')
     end
