@@ -83,7 +83,8 @@ module Kubetailrb
       def format_mdcs(json)
         result = ''
         @mdcs.each do |mdc|
-          result += "#{cyan("#{mdc}=#{json[mdc]}")} " if json.include?(mdc)
+          value = json[mdc] || json.dig(*mdc.split('.'))
+          result += "#{cyan("#{mdc}=#{value}")} " unless value.nil?
         end
         result.to_s
       end

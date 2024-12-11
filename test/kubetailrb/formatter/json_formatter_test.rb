@@ -164,6 +164,45 @@ module Kubetailrb
           EXPECTED
           assert_equal expected, actual
         end
+
+        it 'should not display the mdc if not present' do
+          @formatter = JsonFormatter.new(['account.id'])
+          json = <<~JSON
+            {
+              "@timestamp": "2024-11-09T19:42:55.088Z",
+              "log.level": "INFO",
+              "message": "Time is 2024-11-09T19:42:55.088Z"
+            }
+          JSON
+
+          actual = @formatter.format json
+
+          expected = <<~EXPECTED.chomp
+            2024-11-09T19:42:55.088Z \e[1;30;44m I \e[0m Time is 2024-11-09T19:42:55.088Z
+          EXPECTED
+          assert_equal expected, actual
+        end
+
+        it 'should display the mdc if present in nested object' do
+          @formatter = JsonFormatter.new(['account.id'])
+          json = <<~JSON
+            {
+              "@timestamp": "2024-11-09T19:42:55.088Z",
+              "log.level": "INFO",
+              "message": "Time is 2024-11-09T19:42:55.088Z",
+              "account": {
+                "id": 1234
+              }
+            }
+          JSON
+
+          actual = @formatter.format json
+
+          expected = <<~EXPECTED.chomp
+            2024-11-09T19:42:55.088Z \e[1;30;44m I \e[0m \e[36maccount.id=1234\e[0m Time is 2024-11-09T19:42:55.088Z
+          EXPECTED
+          assert_equal expected, actual
+        end
       end
     end
   end
