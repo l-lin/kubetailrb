@@ -10,7 +10,7 @@ module Kubetailrb
       include Painter
       include Validated
 
-      def initialize(mdcs)
+      def initialize(mdcs = [])
         @mdcs = mdcs
 
         validate

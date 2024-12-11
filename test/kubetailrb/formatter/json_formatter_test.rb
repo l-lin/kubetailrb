@@ -16,7 +16,7 @@ module Kubetailrb
       end
       describe '.format' do
         before :each do
-          @formatter = JsonFormatter.new(['account.id'])
+          @formatter = JsonFormatter.new
         end
 
         it 'should format into a human readable log if given an application log in json format' do
@@ -147,6 +147,7 @@ module Kubetailrb
         end
 
         it 'should display the mdc if present' do
+          @formatter = JsonFormatter.new(['account.id'])
           json = <<~JSON
             {
               "@timestamp": "2024-11-09T19:42:55.088Z",

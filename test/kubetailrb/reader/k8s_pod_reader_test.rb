@@ -16,15 +16,7 @@ module Kubetailrb
               K8sPodReader.new(
                 pod_name: invalid_pod_name,
                 container_name: CONTAINER_NAME,
-                opts: K8sOpts.new(
-                  namespace: NAMESPACE,
-                  last_nb_lines: 3,
-                  follow: false,
-                  raw: false,
-                  display_names: false,
-                  excludes: [],
-                  mdcs: []
-                )
+                opts: K8sOpts.new(namespace: NAMESPACE, last_nb_lines: 3)
               )
             end
 
@@ -38,15 +30,7 @@ module Kubetailrb
               K8sPodReader.new(
                 pod_name: POD_NAME,
                 container_name: invalid_container_name,
-                opts: K8sOpts.new(
-                  namespace: NAMESPACE,
-                  last_nb_lines: 3,
-                  follow: false,
-                  raw: false,
-                  display_names: false,
-                  excludes: [],
-                  mdcs: []
-                )
+                opts: K8sOpts.new(namespace: NAMESPACE, last_nb_lines: 3)
               )
             end
 
@@ -83,15 +67,7 @@ module Kubetailrb
             k8s_client: @k8s_client,
             pod_name: POD_NAME,
             container_name: CONTAINER_NAME,
-            opts: K8sOpts.new(
-              namespace: NAMESPACE,
-              last_nb_lines: 3,
-              follow: false,
-              raw: false,
-              display_names: true,
-              excludes: [],
-              mdcs: []
-            )
+            opts: K8sOpts.new(namespace: NAMESPACE, last_nb_lines: 3, display_names: true)
           )
           given_pod_logs
 
@@ -108,15 +84,7 @@ module Kubetailrb
             k8s_client: @k8s_client,
             pod_name: POD_NAME,
             container_name: CONTAINER_NAME,
-            opts: K8sOpts.new(
-              namespace: NAMESPACE,
-              last_nb_lines: 3,
-              follow: false,
-              raw: true,
-              display_names: false,
-              excludes: [],
-              mdcs: []
-            )
+            opts: K8sOpts.new(namespace: NAMESPACE, last_nb_lines: 3, raw: true)
           )
           pod_logs = given_pod_logs
 
@@ -132,10 +100,7 @@ module Kubetailrb
               namespace: NAMESPACE,
               last_nb_lines: 3,
               follow: true,
-              raw: false,
-              display_names: true,
-              excludes: [],
-              mdcs: []
+              display_names: true
             )
           )
 
@@ -164,15 +129,7 @@ module Kubetailrb
             k8s_client: @k8s_client,
             pod_name: POD_NAME,
             container_name: CONTAINER_NAME,
-            opts: K8sOpts.new(
-              namespace: NAMESPACE,
-              last_nb_lines: 10,
-              follow: false,
-              raw: false,
-              display_names: false,
-              excludes: ['access-logs'],
-              mdcs: []
-            )
+            opts: K8sOpts.new(namespace: NAMESPACE, excludes: ['access-logs'])
           )
           given_pod_access_mixed_in_logs
 

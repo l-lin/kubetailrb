@@ -16,15 +16,7 @@ module Kubetailrb
               K8sPodsReader.new(
                 pod_query: invalid_pod_query,
                 container_query: CONTAINER_QUERY,
-                opts: K8sOpts.new(
-                  namespace: NAMESPACE,
-                  last_nb_lines: 10,
-                  follow: false,
-                  raw: false,
-                  display_names: false,
-                  excludes: [],
-                  mdcs: []
-                )
+                opts: K8sOpts.new(namespace: NAMESPACE)
               )
             end
 
@@ -38,15 +30,7 @@ module Kubetailrb
               K8sPodsReader.new(
                 pod_query: POD_QUERY,
                 container_query: invalid_container_query,
-                opts: K8sOpts.new(
-                  namespace: NAMESPACE,
-                  last_nb_lines: 10,
-                  follow: false,
-                  raw: false,
-                  display_names: false,
-                  excludes: [],
-                  mdcs: []
-                )
+                opts: K8sOpts.new(namespace: NAMESPACE)
               )
             end
 
@@ -74,15 +58,7 @@ module Kubetailrb
             k8s_client: @k8s_client,
             pod_query: POD_QUERY,
             container_query: CONTAINER_QUERY,
-            opts: K8sOpts.new(
-              namespace: NAMESPACE,
-              last_nb_lines: 3,
-              follow: false,
-              raw: false,
-              display_names: false,
-              excludes: [],
-              mdcs: []
-            )
+            opts: K8sOpts.new(namespace: NAMESPACE)
           )
 
           # THEN
@@ -102,15 +78,7 @@ module Kubetailrb
             k8s_client: @k8s_client,
             pod_query: POD_QUERY,
             container_query: CONTAINER_QUERY,
-            opts: K8sOpts.new(
-              namespace: NAMESPACE,
-              last_nb_lines: 3,
-              follow: false,
-              raw: false,
-              display_names: true,
-              excludes: [],
-              mdcs: []
-            )
+            opts: K8sOpts.new(namespace: NAMESPACE, last_nb_lines: 3, display_names: true)
           )
 
           # THEN
@@ -133,15 +101,7 @@ module Kubetailrb
             k8s_client: @k8s_client,
             pod_query: '.',
             container_query: '.',
-            opts: K8sOpts.new(
-              namespace: NAMESPACE,
-              last_nb_lines: 3,
-              follow: false,
-              raw: false,
-              display_names: true,
-              excludes: [],
-              mdcs: []
-            )
+            opts: K8sOpts.new(namespace: NAMESPACE, last_nb_lines: 3, display_names: true)
           )
 
           # THEN
@@ -164,15 +124,7 @@ module Kubetailrb
             k8s_client: @k8s_client,
             pod_query: '.',
             container_query: 'some-.*',
-            opts: K8sOpts.new(
-              namespace: NAMESPACE,
-              last_nb_lines: 3,
-              follow: false,
-              raw: false,
-              display_names: true,
-              excludes: [],
-              mdcs: []
-            )
+            opts: K8sOpts.new(namespace: NAMESPACE, last_nb_lines: 3, display_names: true)
           )
 
           # THEN
@@ -192,15 +144,7 @@ module Kubetailrb
             k8s_client: @k8s_client,
             pod_query: POD_QUERY,
             container_query: CONTAINER_QUERY,
-            opts: K8sOpts.new(
-              namespace: NAMESPACE,
-              last_nb_lines: 3,
-              follow: false,
-              raw: true,
-              display_names: false,
-              excludes: [],
-              mdcs: []
-            )
+            opts: K8sOpts.new(namespace: NAMESPACE, last_nb_lines: 3, raw: true)
           )
 
           # THEN
@@ -229,10 +173,7 @@ module Kubetailrb
               namespace: NAMESPACE,
               last_nb_lines: 3,
               follow: true,
-              raw: true,
-              display_names: false,
-              excludes: [],
-              mdcs: []
+              raw: true
             )
           )
 

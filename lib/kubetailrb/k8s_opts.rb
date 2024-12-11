@@ -7,9 +7,20 @@ module Kubetailrb
   class K8sOpts
     include Validated
 
+    DEFAULT_NAMESPACE = 'default'
+    DEFAULT_NB_LINES = 10
+
     attr_reader :namespace, :last_nb_lines, :excludes, :mdcs
 
-    def initialize(namespace:, last_nb_lines:, follow:, raw:, display_names:, excludes:, mdcs:) # rubocop:disable Metrics/ParameterLists
+    def initialize( # rubocop:disable Metrics/ParameterLists
+      namespace: DEFAULT_NAMESPACE,
+      last_nb_lines: DEFAULT_NB_LINES,
+      follow: false,
+      raw: false,
+      display_names: false,
+      excludes: [],
+      mdcs: []
+    )
       @namespace = namespace
       @last_nb_lines = last_nb_lines
       @follow = follow
