@@ -1,3 +1,7 @@
+## [0.3.1] - 2024-12-13
+
+- fix reading rails log messages
+
 ## [0.3.0] - 2024-12-11
 
 - rename `--exclude` flag to `--excludes`
