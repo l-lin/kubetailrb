@@ -41,7 +41,7 @@ module Kubetailrb
       end
 
       def format_application_log(json)
-        "#{json["@timestamp"]}#{format_log_level json}#{format_mdcs json}#{json["message"]}#{format_stack_trace json}"
+        "#{json["@timestamp"]}#{format_log_level json}#{format_mdcs json}#{message json}#{format_stack_trace json}"
       end
 
       def format_stack_trace(json)
@@ -70,6 +70,10 @@ module Kubetailrb
         return " #{highlight_red(" E ")} " if level == 'ERROR'
 
         " #{level} "
+      end
+
+      def message(json)
+        json['message'] || json['rails_message'] || json.dig('rails', 'message')
       end
 
       def http_method(json)

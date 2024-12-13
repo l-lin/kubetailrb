@@ -78,7 +78,7 @@ module Kubetailrb
           assert_equal expected, actual
         end
 
-        it 'should display rails log in pretty format' do
+        it 'should display rails log in pretty format if rails message in root object' do
           json = <<~JSON
             {
               "@timestamp": "2024-11-09T19:42:55.088Z",
@@ -86,7 +86,24 @@ module Kubetailrb
                 "logger": "lin_louis_logger",
                 "level": "WARN"
               },
-              "message": "Time is 2024-11-09T19:42:55.088Z",
+              "rails_message": "Time is 2024-11-09T19:42:55.088Z"
+            }
+          JSON
+
+          actual = @formatter.format json
+
+          expected = "2024-11-09T19:42:55.088Z \e[1;30;43m W \e[0m Time is 2024-11-09T19:42:55.088Z"
+          assert_equal expected, actual
+        end
+
+        it 'should display rails log in pretty format if rails message is in nested object' do
+          json = <<~JSON
+            {
+              "@timestamp": "2024-11-09T19:42:55.088Z",
+              "log": {
+                "logger": "lin_louis_logger",
+                "level": "WARN"
+              },
               "rails": {
                 "message": "Time is 2024-11-09T19:42:55.088Z"
               }
