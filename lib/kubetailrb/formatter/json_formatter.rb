@@ -62,9 +62,10 @@ module Kubetailrb
         " #{code} "
       end
 
-      def format_log_level(json)
+      def format_log_level(json) # rubocop:disable Metrics/CyclomaticComplexity
         level = json['log.level'] || json.dig('log', 'level')
         return ' ' if level.nil? || level.strip.empty?
+        return " #{highlight_grey(" D ")} " if %w[DEBUG TRACE].include?(level)
         return " #{highlight_blue(" I ")} " if level == 'INFO'
         return " #{highlight_yellow(" W ")} " if level == 'WARN'
         return " #{highlight_red(" E ")} " if level == 'ERROR'
