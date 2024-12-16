@@ -2,7 +2,8 @@
 #
 # Release gem by:
 # - creating a new git tag
-# - building 
+# - publish to Github
+# - publish gem to rubygems
 #
 
 set -euo pipefail

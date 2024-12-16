@@ -60,11 +60,6 @@ kubetailrb 'clock' -n sandbox -f --mdcs thread.name,service.version
 # Open interactive prompt to allow you to experiment.
 ./bin/console
 
-# Release new version
-NEW_VERSION=1.0.1 \
-  && sed "s/VERSION = \".*\"/VERSION = \"${NEW_VERSION}\"/" lib/kubetailrb/version.rb
-  && bundle exec rake release
-
 # Check available tasks that can be run
 bundle exec rake --tasks
 
@@ -87,7 +82,7 @@ Update the version in
 Then execute the script:
 
 ```sh
-./bin/release
+./bin/release 
 ```
 
 ## Contributing

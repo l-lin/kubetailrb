@@ -1,3 +1,7 @@
+## [0.3.2] - 2024-12-16
+
+- support `DEBUG` and `TRACE` levels
+
 ## [0.3.1] - 2024-12-13
 
 - fix reading rails log messages
