@@ -21,6 +21,14 @@ module Kubetailrb
 
       MDCS_FLAGS = %w[-m --mdcs].freeze
 
+      FLAGS_WITH_VALUES = (
+        NAMESPACE_FLAGS +
+        [TAIL_FLAG] +
+        CONTAINER_FLAGS +
+        EXCLUDES_FLAGS +
+        MDCS_FLAGS
+      ).freeze
+
       attr_reader :reader
 
       def initialize(pod_query:, container_query:, opts:)
@@ -38,7 +46,7 @@ module Kubetailrb
       class << self
         def create(*args)
           new(
-            pod_query: parse_pod_query(*args),
+            pod_query: parse_pod_query(args),
             container_query: parse_container_query(*args),
             opts: K8sOpts.new(
               namespace: parse_namespace(*args),
@@ -52,14 +60,20 @@ module Kubetailrb
           )
         end
 
-        def parse_pod_query(*args)
-          # TODO: We could be smarter here? For example, if the pod names are
-          # provided at the end of the command, like this:
-          #   kubetailrb --tail 3 some-pod
-          # The above command will not work because this method will return 3
-          # instead of 'some-pod'...
-          args.find { |arg| !arg.start_with? '-' }
+        def parse_pod_query(args)
+          args.each_with_index.find do |arg, idx|
+            !arg.start_with?('-') && !consumed_by_flag?(args, idx)
+          end&.first
         end
+
+        private
+
+        def consumed_by_flag?(args, idx)
+          prev = args[idx - 1]
+          FLAGS_WITH_VALUES.include?(prev)
+        end
+
+        public
 
         #
         # Parse k8s namespace from arguments provided in the CLI, e.g.

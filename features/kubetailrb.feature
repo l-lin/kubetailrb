@@ -6,7 +6,7 @@ Feature: Kubetailrb
 Tail your Kubernetes pod logs at the same time.
 
 Usage:
-  kubetailrb pod-query [flags]
+  kubetailrb [flags] pod-query
 
 Flags:
   -v, --version       Display version.
@@ -29,7 +29,7 @@ Flags:
 Tail your Kubernetes pod logs at the same time.
 
 Usage:
-  kubetailrb pod-query [flags]
+  kubetailrb [flags] pod-query
 
 Flags:
   -v, --version       Display version.

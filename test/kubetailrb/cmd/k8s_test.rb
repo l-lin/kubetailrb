@@ -60,6 +60,40 @@ module Kubetailrb
           refute actual.reader.opts.raw?
         end
 
+        it 'should accept pod-query after flags' do
+          args = %w[--tail 3 --follow some-pod]
+
+          actual = K8s.create(*args)
+
+          assert_instance_of K8s, actual
+          assert_equal(/some-pod/, actual.reader.pod_query)
+          assert_equal 3, actual.reader.opts.last_nb_lines
+          assert actual.reader.opts.follow?
+        end
+
+        it 'should accept pod-query between flags' do
+          args = %w[-f some-pod --tail 5 -n ns]
+
+          actual = K8s.create(*args)
+
+          assert_instance_of K8s, actual
+          assert_equal(/some-pod/, actual.reader.pod_query)
+          assert_equal 5, actual.reader.opts.last_nb_lines
+          assert actual.reader.opts.follow?
+          assert_equal 'ns', actual.reader.opts.namespace
+        end
+
+        it 'should accept pod-query before and after flags' do
+          args = %w[some-pod --tail 3 -f]
+
+          actual = K8s.create(*args)
+
+          assert_instance_of K8s, actual
+          assert_equal(/some-pod/, actual.reader.pod_query)
+          assert_equal 3, actual.reader.opts.last_nb_lines
+          assert actual.reader.opts.follow?
+        end
+
         it 'should raise ArgumentError if given an invalid `--tail` flag value' do
           args = %w[some-pod --tail invalid]
 
